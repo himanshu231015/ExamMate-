@@ -29,8 +29,8 @@ def seed_database(db: Session):
     if not db.query(User).filter(User.email == "admin@rgpvexammate.edu").first():
         admin = User(
             email="admin@rgpvexammate.edu",
-            hashed_password=hash_password("Admin@123"),
-            full_name="RGPV Administrator",
+            hashed_password=hash_password("dj1234"),
+            full_name="RGPV Administrator (Admin123)",
             role=UserRole.ADMIN,
             is_active=True,
         )

@@ -9,6 +9,7 @@ from app.api.v1.chat import router as chat_router
 from app.api.v1.feedback import router as feedback_router
 from app.api.v1.analytics import router as analytics_router
 from app.api.v1.study_plans import router as study_plans_router
+from app.api.v1.admin import router as admin_router
 
 api_router = APIRouter()
 
@@ -20,3 +21,4 @@ api_router.include_router(chat_router)
 api_router.include_router(feedback_router)
 api_router.include_router(analytics_router)
 api_router.include_router(study_plans_router)
+api_router.include_router(admin_router)

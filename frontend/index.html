@@ -3,383 +3,2599 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Swift-Prep – RGPV ExamMate</title>
-  <meta name="description" content="AI-Powered RGPV Exam Preparation Platform." />
+  <title>Swift-Prep – RGPV ExamMate AI Portal</title>
+  <meta name="description" content="AI-Powered RGPV Exam Preparation & Academic Intelligence Platform." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2.6" />
 </head>
 <body>
 
   <!-- Faceted Low-Poly Polygon Background Canvas -->
   <canvas id="bg-canvas"></canvas>
 
-  <!-- ── LEFT SIDEBAR ── -->
-  <aside class="sidebar">
-    <!-- Top Brush/Quill Logo -->
-    <div class="sidebar-logo">
-      <a href="#" class="logo-link" title="Swift-Prep">
-        <svg class="quill-logo" viewBox="0 0 40 40" fill="none">
-          <defs>
-            <linearGradient id="quillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#38bdf8"/>
-              <stop offset="50%" stop-color="#818cf8"/>
-              <stop offset="100%" stop-color="#a855f7"/>
-            </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#38bdf8" flood-opacity="0.6"/>
-            </filter>
-          </defs>
-          <path d="M8 32 C12 28, 14 26, 17 22 C21 16, 27 8, 33 5 C35 7, 34 11, 31 16 C27 23, 21 27, 16 30 C13 32, 10 32, 8 32 Z" fill="url(#quillGrad)" filter="url(#glow)"/>
-          <path d="M12 28 L6 34 L10 34 Z" fill="#38bdf8"/>
-        </svg>
-      </a>
+  <!-- =====================================================
+       AUTHENTICATION SECTION (LOGIN & REGISTRATION)
+       Shown by default until user is authenticated
+       ===================================================== -->
+  <section class="auth-section" id="auth-section">
+    <div class="auth-card-wrapper">
+      
+      <!-- Brand & Header -->
+      <div class="auth-brand-header">
+        <div class="auth-logo-badge">
+          <svg class="auth-quill-logo" viewBox="0 0 40 40" fill="none">
+            <defs>
+              <linearGradient id="authQuillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="50%" stop-color="#818cf8"/>
+                <stop offset="100%" stop-color="#a855f7"/>
+              </linearGradient>
+              <filter id="authGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#38bdf8" flood-opacity="0.7"/>
+              </filter>
+            </defs>
+            <path d="M8 32 C12 28, 14 26, 17 22 C21 16, 27 8, 33 5 C35 7, 34 11, 31 16 C27 23, 21 27, 16 30 C13 32, 10 32, 8 32 Z" fill="url(#authQuillGrad)" filter="url(#authGlow)"/>
+            <path d="M12 28 L6 34 L10 34 Z" fill="#38bdf8"/>
+          </svg>
+        </div>
+        <h1 class="auth-brand-title">Swift-Prep</h1>
+        <p class="auth-brand-sub">RGPV ExamMate • Academic Intelligence & Exam Portal</p>
+      </div>
+
+      <!-- Main Glass Card -->
+      <div class="auth-glass-card">
+
+        <!-- Role Selector Pill: Student vs Admin -->
+        <div class="role-selector-bar">
+          <button type="button" class="role-pill-btn active" id="pill-role-student" data-role="student">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+            <span>Student / Learner</span>
+          </button>
+          <button type="button" class="role-pill-btn" id="pill-role-admin" data-role="admin">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span>Administrator</span>
+          </button>
+        </div>
+
+        <!-- Mode Tabs: Sign In vs Create Account -->
+        <div class="auth-tabs" id="auth-tabs-wrap">
+          <button type="button" class="auth-tab-btn active" id="tab-login">Sign In</button>
+          <button type="button" class="auth-tab-btn" id="tab-register">Create Account</button>
+        </div>
+
+        <!-- Dynamic Alert Message -->
+        <div class="auth-alert" id="auth-alert" style="display:none;"></div>
+
+        <!-- ── LOGIN FORM CONTAINER ── -->
+        <div class="auth-form-container" id="login-container">
+          <div class="role-context-hint" id="login-role-hint">
+            <span class="role-context-dot student" id="role-dot"></span>
+            <span id="login-role-hint-text">Signing in as <strong>Student</strong> to access study plans & PYQs.</span>
+          </div>
+
+          <form id="login-form" autocomplete="on">
+            <div class="form-group">
+              <label for="login-email" id="lbl-login-id">Email / ID</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <input type="text" id="login-email" placeholder="e.g. student@rgpvexammate.edu" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="label-row">
+                <label for="login-password">Password</label>
+                <span class="forgot-link" id="hint-pass-text">Default: Student@123</span>
+              </div>
+              <div class="input-wrap">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <input type="password" id="login-password" placeholder="••••••••" required />
+                <button type="button" class="toggle-pass-btn" id="toggle-login-pass" title="Show/Hide Password">
+                  <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="auth-submit-btn" id="btn-submit-login">
+              <span class="btn-text" id="login-btn-text">Sign In to Dashboard</span>
+              <span class="btn-spinner" id="login-spinner" style="display:none;"></span>
+            </button>
+          </form>
+
+          <!-- Quick 1-Click Demo Logins -->
+          <div class="demo-logins-box">
+            <span class="demo-title">⚡ Quick 1-Click Test Accounts:</span>
+            <div class="demo-buttons-row">
+              <button type="button" class="demo-chip-btn demo-student" id="demo-student-btn" title="Fill Student credentials">
+                <span class="demo-avatar">🎓</span>
+                <div class="demo-details">
+                  <strong>Student</strong>
+                  <span>student@rgpvexammate.edu</span>
+                </div>
+              </button>
+              <button type="button" class="demo-chip-btn demo-contributor" id="demo-contributor-btn" title="Fill Contributor credentials">
+                <span class="demo-avatar">✍️</span>
+                <div class="demo-details">
+                  <strong>Contributor</strong>
+                  <span>contributor@rgpvexammate.edu</span>
+                </div>
+              </button>
+              <button type="button" class="demo-chip-btn demo-reviewer" id="demo-reviewer-btn" title="Fill Reviewer credentials">
+                <span class="demo-avatar">🧑‍🏫</span>
+                <div class="demo-details">
+                  <strong>Reviewer</strong>
+                  <span>reviewer@rgpvexammate.edu</span>
+                </div>
+              </button>
+              <button type="button" class="demo-chip-btn demo-admin" id="demo-admin-btn" title="Fill Admin (Admin123 / dj1234)">
+                <span class="demo-avatar">🛡️</span>
+                <div class="demo-details">
+                  <strong>Administrator</strong>
+                  <span>Admin123 | dj1234</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-switch-prompt" id="auth-switch-to-reg-wrap">
+            Don't have an account yet? <button type="button" class="switch-link-btn" id="go-to-register">Create a Student Account</button>
+          </div>
+        </div>
+
+        <!-- ── REGISTER FORM CONTAINER (Students & Contributors only) ── -->
+        <div class="auth-form-container" id="register-container" style="display:none;">
+          <div class="role-context-hint" id="reg-role-hint">
+            <span class="role-context-dot student"></span>
+            <span>Create a new <strong>Student / Contributor</strong> account to study RGPV courses.</span>
+          </div>
+
+          <form id="register-form" autocomplete="on">
+            <div class="form-group">
+              <label for="reg-name">Full Name</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <input type="text" id="reg-name" placeholder="e.g. Rahul Sharma" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-email">College / Personal Email</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <input type="email" id="reg-email" placeholder="e.g. rahul@rgpvexammate.edu" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-role">Account Type</label>
+              <div class="input-wrap select-wrap">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polygon points="12 8 8 12 12 16 16 12 12 8"/>
+                </svg>
+                <select id="reg-role" required>
+                  <option value="student" selected>Student (Learner / B.Tech)</option>
+                  <option value="contributor">Contributor (Notes / PYQs)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="reg-password">Password</label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" id="reg-password" placeholder="Min 6 chars" minlength="6" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-confirm-password">Confirm Password</label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" id="reg-confirm-password" placeholder="Repeat password" minlength="6" required />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="auth-submit-btn" id="btn-submit-register">
+              <span class="btn-text">Create Account & Enter Dashboard</span>
+              <span class="btn-spinner" id="reg-spinner" style="display:none;"></span>
+            </button>
+          </form>
+
+          <div class="auth-switch-prompt">
+            Already registered? <button type="button" class="switch-link-btn" id="go-to-login">Sign In Instead</button>
+          </div>
+        </div>
+
+        <!-- Security Footer -->
+        <div class="auth-card-footer">
+          <div class="auth-sec-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>JWT Secure Auth</span>
+          </div>
+          <div class="auth-sec-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+            <span>RGPV CBGS-2024</span>
+          </div>
+          <div class="auth-sec-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Role-Based Access</span>
+          </div>
+        </div>
+
+      </div>
     </div>
+  </section>
 
-    <!-- Navigation Icons -->
-    <nav class="sidebar-nav">
-      <a href="#" class="sn-item active" id="sn-home" title="Home">
-        <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-      </a>
-      <a href="#" class="sn-item" id="sn-courses" title="Courses">
-        <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-          <line x1="12" y1="18" x2="12.01" y2="18"/>
-        </svg>
-      </a>
-      <a href="#" class="sn-item" id="sn-syllabus" title="Syllabus">
-        <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-          <line x1="9" y1="6" x2="16" y2="6"/>
-          <line x1="9" y1="10" x2="14" y2="10"/>
-        </svg>
-      </a>
-      <a href="#" class="sn-item" id="sn-practice" title="Practice">
-        <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 20h9"/>
-          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-        </svg>
-      </a>
-      <a href="#" class="sn-item" id="sn-pyq" title="PYQs">
-        <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-        </svg>
-      </a>
-      <a href="#" class="sn-item" id="sn-college" title="College / RGPV">
-        <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/>
-        </svg>
-      </a>
-      <a href="#" class="sn-item" id="sn-analytics" title="Analytics">
-        <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-          <polyline points="17 6 23 6 23 12"/>
-        </svg>
-      </a>
-    </nav>
 
-    <!-- Bottom User Avatar -->
-    <div class="sidebar-foot">
-      <div class="user-badge" title="User Profile">
-        <span>N</span>
-      </div>
-    </div>
-  </aside>
+  <!-- =====================================================
+       PROTECTED DASHBOARD WRAPPER
+       Accessible ONLY after successful login
+       ===================================================== -->
+  <div id="dashboard-wrapper" class="dashboard-hidden">
 
-  <!-- ── MAIN CONTENT AREA ── -->
-  <main class="main-container">
-
-    <!-- Top Navigation Header -->
-    <header class="topbar">
-      <div class="tb-left">
-        <h1 class="app-title">Swift-Prep</h1>
-        <span class="app-sub">Home</span>
-      </div>
-      <div class="tb-right">
-        <div class="profile-avatar" title="Account">
-          <svg viewBox="0 0 36 36" width="36" height="36" fill="currentColor">
-            <circle cx="18" cy="18" r="18" fill="#ffffff"/>
-            <!-- Cute face silhouette -->
-            <ellipse cx="14" cy="15" rx="1.8" ry="2.2" fill="#1e293b"/>
-            <ellipse cx="22" cy="15" rx="1.8" ry="2.2" fill="#1e293b"/>
-            <path d="M14 22 Q18 26 22 22" stroke="#1e293b" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <!-- ── LEFT SIDEBAR ── -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <a href="#" class="logo-link" id="sn-logo-link" title="Swift-Prep Home">
+          <svg class="quill-logo" viewBox="0 0 40 40" fill="none">
+            <defs>
+              <linearGradient id="quillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="50%" stop-color="#818cf8"/>
+                <stop offset="100%" stop-color="#a855f7"/>
+              </linearGradient>
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#38bdf8" flood-opacity="0.6"/>
+              </filter>
+            </defs>
+            <path d="M8 32 C12 28, 14 26, 17 22 C21 16, 27 8, 33 5 C35 7, 34 11, 31 16 C27 23, 21 27, 16 30 C13 32, 10 32, 8 32 Z" fill="url(#quillGrad)" filter="url(#glow)"/>
+            <path d="M12 28 L6 34 L10 34 Z" fill="#38bdf8"/>
           </svg>
-        </div>
+        </a>
       </div>
-    </header>
 
-    <!-- Hero / Greeting Row -->
-    <section class="hero-row">
-      <div class="hero-greeting">
-        <h2 class="hero-h1" id="greeting-h1">Good evening, there! 👋</h2>
-        <p class="hero-sub" id="greeting-p">Ah, we meet again. That syllabus isn't going to read itself, apparently.</p>
-      </div>
-      <div class="hero-level">
-        <span class="level-label">Current Level</span>
-        <div class="level-value">Intermed<span class="level-accent">iate</span></div>
-      </div>
-    </section>
-
-    <!-- Four Stat Cards -->
-    <section class="stats-grid">
-      <!-- Card 1 -->
-      <div class="stat-card" id="card-courses">
-        <div class="stat-info">
-          <span class="stat-label">Courses Completed</span>
-          <span class="stat-value" id="val-courses">8</span>
-        </div>
-        <div class="stat-icon-wrap icon-magenta">
-          <!-- Ribbon / Medal icon -->
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="6"/>
-            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+      <!-- Navigation Icons linking to real pages -->
+      <nav class="sidebar-nav">
+        <a href="#home" class="sn-item active" id="sn-home" data-view="home" title="Home">
+          <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
           </svg>
-        </div>
-      </div>
-
-      <!-- Card 2 -->
-      <div class="stat-card" id="card-streak">
-        <div class="stat-info">
-          <span class="stat-label">Study Streak</span>
-          <span class="stat-value" id="val-streak">6 days</span>
-        </div>
-        <div class="stat-icon-wrap icon-cyan">
-          <!-- Trend-up icon -->
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-            <polyline points="17 6 23 6 23 12"/>
+        </a>
+        <a href="#courses" class="sn-item" id="sn-courses" data-view="courses" title="Courses">
+          <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12.01" y2="18"/>
           </svg>
-        </div>
-      </div>
-
-      <!-- Card 3 -->
-      <div class="stat-card" id="card-time">
-        <div class="stat-info">
-          <span class="stat-label">Total Study Time</span>
-          <span class="stat-value" id="val-time">47h</span>
-        </div>
-        <div class="stat-icon-wrap icon-violet">
-          <!-- Clock icon -->
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
+        </a>
+        <a href="#syllabus" class="sn-item" id="sn-syllabus" data-view="syllabus" title="Syllabus">
+          <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            <line x1="9" y1="6" x2="16" y2="6"/>
+            <line x1="9" y1="10" x2="14" y2="10"/>
           </svg>
-        </div>
-      </div>
-
-      <!-- Card 4 -->
-      <div class="stat-card" id="card-quiz">
-        <div class="stat-info">
-          <span class="stat-label">Quiz Average</span>
-          <span class="stat-value" id="val-quiz">87%</span>
-        </div>
-        <div class="stat-icon-wrap icon-emerald">
-          <!-- Document / List icon -->
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        </a>
+        <a href="#practice" class="sn-item" id="sn-practice" data-view="practice" title="Practice">
+          <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </a>
+        <a href="#pyq" class="sn-item" id="sn-pyq" data-view="pyq" title="PYQs">
+          <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
             <line x1="16" y1="13" x2="8" y2="13"/>
             <line x1="16" y1="17" x2="8" y2="17"/>
           </svg>
+        </a>
+        <a href="#college" class="sn-item" id="sn-college" data-view="college" title="College / RGPV">
+          <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/>
+          </svg>
+        </a>
+        <a href="#analytics" class="sn-item" id="sn-analytics" data-view="analytics" title="Analytics">
+          <svg class="sn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <polyline points="17 6 23 6 23 12"/>
+          </svg>
+        </a>
+      </nav>
+
+      <!-- Bottom User Profile & Sign Out -->
+      <div class="sidebar-foot">
+        <div class="user-badge" id="sidebar-user-badge" onclick="openProfileModal()" style="cursor:pointer;" title="User Profile">
+          <span id="sidebar-user-initial">U</span>
+        </div>
+        <button class="sidebar-logout-btn" id="sidebar-logout-btn" title="Sign Out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT AREA ── -->
+    <main class="main-container">
+
+      <!-- Top Navigation Header -->
+      <header class="topbar">
+        <div class="tb-left">
+          <div class="title-with-badge">
+            <h1 class="app-title" id="page-main-title">Swift-Prep</h1>
+            <span class="user-role-badge role-student" id="topbar-role-badge">STUDENT</span>
+          </div>
+          <span class="app-sub" id="topbar-section-title">Home Dashboard</span>
+        </div>
+        <div class="tb-right">
+        </div>
+      </header>
+
+      <!-- Admin Management Banner (Displayed when role is admin) -->
+      <section class="admin-banner-card" id="admin-banner" style="display:none;">
+        <div class="admin-banner-content">
+          <div class="admin-banner-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
+          <div class="admin-banner-text">
+            <h4>Administrator Console Active (Admin123)</h4>
+            <p>You have full university administrative access to review syllabus records, audit submissions, and manage platform users.</p>
+          </div>
+        </div>
+        <div class="admin-banner-actions">
+          <button type="button" class="admin-tool-btn" id="btn-admin-manage-users">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>View All Users</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- =====================================================
+           PAGE 1: HOME DASHBOARD VIEW
+           ===================================================== -->
+      <div id="view-home" class="dashboard-page-view active-view">
+        <!-- Hero / Greeting Row -->
+        <section class="hero-row">
+          <div class="hero-greeting">
+            <h2 class="hero-h1" id="greeting-h1">Good evening, there! 👋</h2>
+            <p class="hero-sub" id="greeting-p">Ah, we meet again. That syllabus isn't going to read itself, apparently.</p>
+          </div>
+          <div class="hero-level">
+            <span class="level-label" id="hero-role-sub">Access Level</span>
+            <div class="level-value" id="hero-level-display">Intermed<span class="level-accent">iate</span></div>
+          </div>
+        </section>
+
+        <!-- ── STUDENT DASHBOARD CONTENT ──
+             Shown for regular student/learner accounts -->
+        <div id="student-home-content">
+          <!-- Four Stat Cards -->
+          <section class="stats-grid">
+            <div class="stat-card" id="card-courses">
+              <div class="stat-info">
+                <span class="stat-label">Courses Completed</span>
+                <span class="stat-value" id="val-courses">8</span>
+              </div>
+              <div class="stat-icon-wrap icon-magenta">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="6"/>
+                  <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-card" id="card-streak">
+              <div class="stat-info">
+                <span class="stat-label">Study Streak</span>
+                <span class="stat-value" id="val-streak">6 days</span>
+              </div>
+              <div class="stat-icon-wrap icon-cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                  <polyline points="17 6 23 6 23 12"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-card" id="card-time">
+              <div class="stat-info">
+                <span class="stat-label">Total Study Time</span>
+                <span class="stat-value" id="val-time">47h</span>
+              </div>
+              <div class="stat-icon-wrap icon-violet">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-card" id="card-quiz">
+              <div class="stat-info">
+                <span class="stat-label">Quiz Average</span>
+                <span class="stat-value" id="val-quiz">87%</span>
+              </div>
+              <div class="stat-icon-wrap icon-emerald">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+            </div>
+          </section>
+
+          <!-- Bottom 3-Column Section -->
+          <section class="tri-grid">
+
+            <!-- Column 1: Upload Syllabus -->
+            <div class="panel upload-panel">
+              <div class="panel-header">
+                <div class="panel-header-title">
+                  <svg class="header-cap-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                  </svg>
+                  <h3>Upload Syllabus</h3>
+                </div>
+                <p class="panel-subtitle">Upload your PDF syllabus to get started</p>
+              </div>
+
+              <div class="dropzone-box" id="dropzone">
+                <div class="drop-icon-wrap">
+                  <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+                    <line x1="9" y1="17" x2="13" y2="17"/>
+                  </svg>
+                </div>
+                <p class="drop-text">Drag &amp; drop a PDF here, or click to select one</p>
+                <span class="drop-limit">(Maximum: 4.5MB, 15 pages)</span>
+                <input type="file" id="file-input" accept=".pdf" hidden />
+              </div>
+
+              <div class="upload-progress-bar" id="upload-progress" style="display:none;">
+                <div class="track"><div class="fill" id="upload-fill"></div></div>
+                <span class="progress-lbl" id="upload-lbl">Uploading…</span>
+              </div>
+            </div>
+
+            <!-- Column 2: Your Courses -->
+            <div class="panel courses-panel">
+              <div class="panel-header">
+                <div class="panel-header-title">
+                  <svg class="header-cap-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                  </svg>
+                  <h3>Active Courses</h3>
+                </div>
+                <button class="view-all-link-btn" id="btn-goto-courses-tab">View All &rarr;</button>
+              </div>
+
+              <div class="course-list" id="course-list">
+                <!-- Course 1: Data Structures -->
+                <div class="course-card" id="course-1">
+                  <div class="course-left">
+                    <div class="course-cap-badge">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                      </svg>
+                    </div>
+                    <div class="course-meta">
+                      <h4 class="course-name">Data Structures</h4>
+                      <span class="course-code">CS-301 • Sem 3</span>
+                    </div>
+                  </div>
+                  <div class="course-actions">
+                    <button class="pill-btn btn-study" id="study-ds" data-subject="Data Structures (CS-301)" onclick="openStudyModal('Data Structures (CS-301)')">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                      </svg>
+                      Study
+                    </button>
+                    <button class="pill-btn btn-quiz" id="quiz-ds" data-subject="Data Structures (CS-301)" onclick="openQuizModal('Data Structures (CS-301)')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/>
+                        <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/>
+                      </svg>
+                      Quiz
+                    </button>
+                    <button class="trash-btn" id="del-ds" title="Delete Course">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                        <line x1="10" y1="11" x2="10" y2="17"/>
+                        <line x1="14" y1="11" x2="14" y2="17"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Course 2: Analysis & Design of Algorithms -->
+                <div class="course-card" id="course-2">
+                  <div class="course-left">
+                    <div class="course-cap-badge">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                      </svg>
+                    </div>
+                    <div class="course-meta">
+                      <h4 class="course-name">Algorithms (ADA)</h4>
+                      <span class="course-code">CS-402 • Sem 4</span>
+                    </div>
+                  </div>
+                  <div class="course-actions">
+                    <button class="pill-btn btn-study" id="study-ada" data-subject="Algorithms (CS-402)" onclick="openStudyModal('Algorithms (CS-402)')">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                      </svg>
+                      Study
+                    </button>
+                    <button class="pill-btn btn-quiz" id="quiz-ada" data-subject="Algorithms (CS-402)" onclick="openQuizModal('Algorithms (CS-402)')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/>
+                        <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/>
+                      </svg>
+                      Quiz
+                    </button>
+                    <button class="trash-btn" id="del-ada" title="Delete Course">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                        <line x1="10" y1="11" x2="10" y2="17"/>
+                        <line x1="14" y1="11" x2="14" y2="17"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 3: Quick Actions -->
+            <div class="panel quick-actions-panel">
+              <div class="panel-header">
+                <div class="panel-header-title">
+                  <h3>Quick Actions</h3>
+                </div>
+                <p class="panel-subtitle">Jump directly into your studies</p>
+              </div>
+
+              <div class="action-buttons-stack">
+                <button class="action-btn grad-pink" id="btn-start-study" onclick="openStudyModal('RGPV Core Engineering Modules')">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                  <span>Start Study Session</span>
+                </button>
+
+                <button class="action-btn grad-cyan" id="btn-random-quiz" onclick="openQuizModal('RGPV 10-Question Random Diagnostic Quiz')">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                  <span>Take Random Quiz</span>
+                </button>
+
+                <button class="action-btn grad-purple" id="btn-upload-materials">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="16 16 12 12 8 16"/>
+                    <line x1="12" y1="12" x2="12" y2="21"/>
+                    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+                  </svg>
+                  <span>Upload Materials</span>
+                </button>
+              </div>
+            </div>
+
+          </section>
+        </div> <!-- /#student-home-content -->
+
+        <!-- ── CONTRIBUTOR DASHBOARD CONTENT ──
+             Shown exclusively when Contributor is logged in -->
+        <div id="contributor-home-content" style="display:none;">
+          <!-- Contributor Metric Cards -->
+          <section class="admin-metrics-grid">
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Total Submissions</span>
+                <div class="amc-val" id="contrib-val-total">0</div>
+                <div class="amc-sub">All-time papers uploaded</div>
+              </div>
+              <div class="amc-icon amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Pending Verification</span>
+                <div class="amc-val" id="contrib-val-pending">0</div>
+                <div class="amc-sub">Awaiting reviewer queue</div>
+              </div>
+              <div class="amc-icon cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">In Review</span>
+                <div class="amc-val" id="contrib-val-inreview">0</div>
+                <div class="amc-sub">Under active inspection</div>
+              </div>
+              <div class="amc-icon purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Approved & Published</span>
+                <div class="amc-val" id="contrib-val-approved">0</div>
+                <div class="amc-sub">Available to students</div>
+              </div>
+              <div class="amc-icon emerald">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Changes Requested / Rejected</span>
+                <div class="amc-val" id="contrib-val-rejected">0</div>
+                <div class="amc-sub">Action required to resubmit</div>
+              </div>
+              <div class="amc-icon pink">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+            </div>
+          </section>
+
+          <!-- Submit Paper Form Section -->
+          <section class="admin-table-container" style="margin-top:20px;">
+            <div class="atc-header">
+              <div>
+                <h3>📤 Submit Previous Year Question Paper (PYQ)</h3>
+                <p>Upload genuine RGPV university exam papers. Validated by reviewers before publishing.</p>
+              </div>
+            </div>
+            <form id="contrib-submission-form" style="padding:16px;">
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="contrib-subject-id">Subject</label>
+                  <div class="input-wrap select-wrap">
+                    <select id="contrib-subject-id" required>
+                      <option value="">Select RGPV Subject...</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="contrib-scheme-id">Academic Scheme</label>
+                  <div class="input-wrap select-wrap">
+                    <select id="contrib-scheme-id" required>
+                      <option value="1">CBGS 2019 (Grading Scheme)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row-3">
+                <div class="form-group">
+                  <label for="contrib-year">Examination Year</label>
+                  <div class="input-wrap">
+                    <input type="number" id="contrib-year" min="2015" max="2026" value="2023" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="contrib-session">Examination Session</label>
+                  <div class="input-wrap select-wrap">
+                    <select id="contrib-session" required>
+                      <option value="December" selected>December (Winter)</option>
+                      <option value="June">June (Summer)</option>
+                      <option value="November">November</option>
+                      <option value="May">May</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="contrib-type">Examination Type</label>
+                  <div class="input-wrap select-wrap">
+                    <select id="contrib-type" required>
+                      <option value="Main" selected>Main (Regular)</option>
+                      <option value="Backlog">Backlog / Ex-Student</option>
+                      <option value="Mid-Sem">Mid-Semester Test</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="contrib-file">Upload Question Paper PDF (Max 15MB)</label>
+                <div class="input-wrap">
+                  <input type="file" id="contrib-file" accept=".pdf" required />
+                </div>
+                <span style="font-size:0.75rem; color:#8fa3bf; margin-top:4px; display:block;">File must be authentic PDF. Duplicate SHA-256 checks are enforced.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="contrib-notes">Submission Notes / Source URL (Optional)</label>
+                <div class="input-wrap">
+                  <input type="text" id="contrib-notes" placeholder="e.g. Official paper from Dec 2023 exam, source: college exam cell" />
+                </div>
+              </div>
+
+              <button type="submit" class="auth-submit-btn" id="btn-contrib-submit" style="margin-top:12px; width:auto; padding:10px 24px;">
+                <span class="btn-text">Submit for Review</span>
+                <span class="btn-spinner" id="contrib-submit-spinner" style="display:none;"></span>
+              </button>
+            </form>
+          </section>
+
+          <!-- My Submissions Table -->
+          <section class="admin-table-container" style="margin-top:20px;">
+            <div class="atc-header">
+              <div>
+                <h3>📋 My Submissions History</h3>
+                <p>Track your submitted question papers, reviewer comments, and approval statuses.</p>
+              </div>
+              <button type="button" class="view-all-link-btn" id="btn-refresh-contrib-submissions">🔄 Refresh History</button>
+            </div>
+            <div class="admin-table-scroll">
+              <table class="admin-table" id="contrib-submissions-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Subject</th>
+                    <th>Year & Session</th>
+                    <th>Status</th>
+                    <th>Reviewer Feedback</th>
+                    <th>Submitted At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="contrib-submissions-tbody">
+                  <tr><td colspan="7" style="text-align:center; padding:20px; color:#8fa3bf;">Loading your submissions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div> <!-- /#contributor-home-content -->
+
+        <!-- ── REVIEWER DASHBOARD CONTENT ──
+             Shown exclusively when Reviewer is logged in -->
+        <div id="reviewer-home-content" style="display:none;">
+          <!-- Reviewer Metric Cards -->
+          <section class="admin-metrics-grid">
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Pending Review Queue</span>
+                <div class="amc-val" id="rev-val-pending">0</div>
+                <div class="amc-sub">Awaiting verification</div>
+              </div>
+              <div class="amc-icon amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">In Review</span>
+                <div class="amc-val" id="rev-val-inreview">0</div>
+                <div class="amc-sub">Assigned under inspection</div>
+              </div>
+              <div class="amc-icon cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Approved & Published</span>
+                <div class="amc-val" id="rev-val-approved">0</div>
+                <div class="amc-sub">Indexed into PYQ bank</div>
+              </div>
+              <div class="amc-icon emerald">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Flagged for Investigation</span>
+                <div class="amc-val" id="rev-val-flagged">0</div>
+                <div class="amc-sub">Duplicate or copyright alert</div>
+              </div>
+              <div class="amc-icon pink">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Avg. Turnaround Time</span>
+                <div class="amc-val" id="rev-val-turnaround">12.5 hrs</div>
+                <div class="amc-sub">RGPV SLA target: 24 hrs</div>
+              </div>
+              <div class="amc-icon purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+            </div>
+          </section>
+
+          <!-- Review Queue Table -->
+          <section class="admin-table-container" style="margin-top:20px;">
+            <div class="atc-header">
+              <div>
+                <h3>🔍 Review Queue Workspace</h3>
+                <p>Inspect incoming question papers, verify syllabus alignment, and decide publication outcomes.</p>
+              </div>
+              <div class="atc-actions">
+                <input type="text" id="rev-queue-search" class="admin-search-input" placeholder="Search subject or year..." />
+                <button type="button" class="view-all-link-btn" id="btn-refresh-review-queue">🔄 Refresh Queue</button>
+              </div>
+            </div>
+            <div class="admin-table-scroll">
+              <table class="admin-table" id="reviewer-queue-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Contributor</th>
+                    <th>Subject</th>
+                    <th>Year & Session</th>
+                    <th>Status</th>
+                    <th>Flagged</th>
+                    <th>Submitted At</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="reviewer-queue-tbody">
+                  <tr><td colspan="8" style="text-align:center; padding:20px; color:#8fa3bf;">Loading review queue...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div> <!-- /#reviewer-home-content -->
+
+        <!-- ── ADMIN GOVERNANCE CONSOLE ──
+             Shown exclusively when Administrator (Admin123) is logged in -->
+        <div id="admin-home-content" style="display:none;">
+
+          <!-- Admin Sub-Navigation Tabs Bar -->
+          <div class="admin-subnav-bar" id="admin-subnav-tabs">
+            <button type="button" class="admin-subnav-pill active" data-tab="overview">📊 Overview</button>
+            <button type="button" class="admin-subnav-pill" data-tab="users">👥 User Management</button>
+            <button type="button" class="admin-subnav-pill" data-tab="workload">⚖️ Reviewers & Workload</button>
+            <button type="button" class="admin-subnav-pill" data-tab="papers">📄 Question Bank</button>
+            <button type="button" class="admin-subnav-pill" data-tab="subjects">📚 Academic Subjects</button>
+            <button type="button" class="admin-subnav-pill" data-tab="moderation">🛡️ Moderation & Disputes</button>
+            <button type="button" class="admin-subnav-pill" data-tab="analytics">📈 Analytics & CSV</button>
+            <button type="button" class="admin-subnav-pill" data-tab="announcements">📢 Announcements</button>
+            <button type="button" class="admin-subnav-pill" data-tab="audit">📜 Audit Logs</button>
+            <button type="button" class="admin-subnav-pill" data-tab="health">⚙️ System Health</button>
+          </div>
+
+          <!-- SUBVIEW 1: OVERVIEW & REAL-TIME STATS -->
+          <div id="admin-subview-overview" class="admin-subview" style="display:block;">
+          <!-- Top Admin User Stacks (Metric Cards) -->
+          <section class="admin-metrics-grid">
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Total Registered Users</span>
+                <div class="amc-val" id="adm-val-users">1,284</div>
+                <div class="amc-sub">↑ 14% growth this month</div>
+              </div>
+              <div class="amc-icon amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Daily Active Learners</span>
+                <div class="amc-val" id="adm-val-active">430</div>
+                <div class="amc-sub">● Real-time sessions active</div>
+              </div>
+              <div class="amc-icon cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Syllabi & PYQs Managed</span>
+                <div class="amc-val" id="adm-val-papers">48 PYQs</div>
+                <div class="amc-sub">8 Semesters Complete</div>
+              </div>
+              <div class="amc-icon emerald">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </div>
+            </div>
+
+            <div class="admin-metric-card">
+              <div class="amc-info">
+                <span class="amc-label">Diagnostic Pass Rate</span>
+                <div class="amc-val" id="adm-val-pass">86.4%</div>
+                <div class="amc-sub">University benchmark met</div>
+              </div>
+              <div class="amc-icon purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+            </div>
+          </section>
+
+          <!-- Admin Graphs & Traffic Row -->
+          <section class="admin-charts-grid">
+            <!-- Weekly Student Activity Graph -->
+            <div class="admin-chart-box">
+              <div class="acb-header">
+                <div>
+                  <h3>Weekly User Engagement & Traffic Graph</h3>
+                  <span style="font-size:0.75rem; color:#8fa3bf;">Total student study hours logged over the past 7 days</span>
+                </div>
+                <span class="acb-tag">Live Traffic</span>
+              </div>
+              <div class="activity-bars" style="height: 150px; margin-bottom: 12px;">
+                <div class="act-col"><div class="act-bar" style="height: 38%;"></div><span>Mon</span></div>
+                <div class="act-col"><div class="act-bar" style="height: 52%;"></div><span>Tue</span></div>
+                <div class="act-col"><div class="act-bar" style="height: 68%;"></div><span>Wed</span></div>
+                <div class="act-col"><div class="act-bar" style="height: 75%;"></div><span>Thu</span></div>
+                <div class="act-col"><div class="act-bar" style="height: 82%;"></div><span>Fri</span></div>
+                <div class="act-col"><div class="act-bar active" style="height: 94%;"></div><span>Sat</span></div>
+                <div class="act-col"><div class="act-bar active" style="height: 88%;"></div><span>Sun</span></div>
+              </div>
+              <div class="activity-summary">
+                <span>🔥 Peak Concurrency: <strong>Sat 9:30 PM (312 Students)</strong></span>
+                <span style="color:#38bdf8;">Average Study Time: <strong>4.8 hrs/student</strong></span>
+              </div>
+            </div>
+
+            <!-- Branch Enrollment Distribution -->
+            <div class="admin-chart-box">
+              <div class="acb-header">
+                <h3>Branch Distribution</h3>
+                <span class="acb-tag">CBGS Scheme</span>
+              </div>
+              <div class="bar-progress-wrap" style="gap: 12px; margin-top: 10px;">
+                <div class="bp-item">
+                  <div class="bp-header"><span>Computer Science (CS)</span><strong>48% (616)</strong></div>
+                  <div class="bp-track"><div class="bp-fill" style="width: 48%; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div></div>
+                </div>
+                <div class="bp-item">
+                  <div class="bp-header"><span>Information Tech (IT)</span><strong>22% (282)</strong></div>
+                  <div class="bp-track"><div class="bp-fill" style="width: 22%; background: linear-gradient(90deg, #a855f7, #ec4899);"></div></div>
+                </div>
+                <div class="bp-item">
+                  <div class="bp-header"><span>Electronics (EC)</span><strong>16% (205)</strong></div>
+                  <div class="bp-track"><div class="bp-fill" style="width: 16%; background: linear-gradient(90deg, #10b981, #06b6d4);"></div></div>
+                </div>
+                <div class="bp-item">
+                  <div class="bp-header"><span>Mechanical & Civil (ME/CE)</span><strong>14% (181)</strong></div>
+                  <div class="bp-track"><div class="bp-fill" style="width: 14%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- All Years & Subjects Curriculum Explorer -->
+          <section class="admin-curriculum-section">
+            <div class="acs-header">
+              <div>
+                <h3>RGPV 4-Year B.Tech Curriculum & Subject Repository</h3>
+                <p>Complete year-wise syllabus trees, units, exam weightages, and course modules.</p>
+              </div>
+              <div class="year-tabs-row" id="admin-year-tabs">
+                <button type="button" class="year-tab-btn active" data-year="1">1st Year (Sem I & II)</button>
+                <button type="button" class="year-tab-btn" data-year="2">2nd Year (Sem III & IV)</button>
+                <button type="button" class="year-tab-btn" data-year="3">3rd Year (Sem V & VI)</button>
+                <button type="button" class="year-tab-btn" data-year="4">4th Year (Sem VII & VIII)</button>
+              </div>
+            </div>
+
+            <!-- Year 1 Container -->
+            <div class="admin-year-content" id="ayc-year-1" style="display:block;">
+              <div class="subjects-tree-stack">
+                <!-- Subject 1: BT-101 -->
+                <div class="subject-item-box open">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">BT-101</span>
+                      <div>
+                        <span class="sib-title">Engineering Chemistry</span>
+                        <span class="sib-sem">Semester 1 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <p style="font-size:0.8rem; color:#cbd5e1; margin-bottom:8px;"><strong>Subject Scope & Units:</strong></p>
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Water & Analysis</div><div class="ucm-desc">Hardness determination by EDTA method, boiler troubles, water softening processes (Zeolite & Demineralization).</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Polymers & Lubricants</div><div class="ucm-desc">Classification of polymers, Bakelite, Nylon 6:6, mechanism of lubrication, viscosity index, flash & fire point.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Corrosion & Control</div><div class="ucm-desc">Electrochemical corrosion mechanism, galvanic corrosion, sacrificial anode protection, paint coatings.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Spectroscopy & Refractories</div><div class="ucm-desc">UV-Visible & IR Spectroscopy principles, Beer-Lambert Law, refractory materials characteristics.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Fuel & Combustion</div><div class="ucm-desc">Proximate & Ultimate coal analysis, calorific value determination (Bomb Calorimeter), numerical problems.</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subject 2: BT-102 -->
+                <div class="subject-item-box">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">BT-102</span>
+                      <div>
+                        <span class="sib-title">Mathematics - I</span>
+                        <span class="sib-sem">Semester 1 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Calculus & Expansion</div><div class="ucm-desc">Maclaurin's & Taylor's theorem, indeterminate forms, curvature and asymptotes.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Partial Differentiation</div><div class="ucm-desc">Euler's theorem on homogeneous functions, Jacobians, maxima & minima of two variables.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Matrices & Linear Algebra</div><div class="ucm-desc">Rank of matrix, consistency of linear equations, Eigen values & vectors, Cayley-Hamilton theorem.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: First Order Differential Eqns</div><div class="ucm-desc">Exact differential equations, linear differential equations, Bernoulli's equation, orthogonal trajectories.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Higher Order ODEs</div><div class="ucm-desc">Linear differential equations with constant coefficients, Cauchy-Euler equations, method of variation of parameters.</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subject 3: BT-201 -->
+                <div class="subject-item-box">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">BT-201</span>
+                      <div>
+                        <span class="sib-title">Engineering Physics</span>
+                        <span class="sib-sem">Semester 2 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Quantum Mechanics</div><div class="ucm-desc">Wave-particle duality, de-Broglie hypothesis, Heisenberg uncertainty principle, Schrödinger wave equation.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Wave Optics</div><div class="ucm-desc">Interference in thin films, Newton's rings experiment, Fraunhofer diffraction, diffraction grating.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Lasers & Holography</div><div class="ucm-desc">Spontaneous & stimulated emission, population inversion, Ruby Laser, He-Ne Laser, industrial laser applications.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Fiber Optics</div><div class="ucm-desc">Total internal reflection, acceptance angle, numerical aperture, step-index & graded-index fiber modes.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Superconductivity & Nanomaterials</div><div class="ucm-desc">Meissner effect, Type-I & Type-II superconductors, synthesis and carbon nanotubes (CNTs).</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Year 2 Container -->
+            <div class="admin-year-content" id="ayc-year-2" style="display:none;">
+              <div class="subjects-tree-stack">
+                <!-- Subject 1: CS-301 -->
+                <div class="subject-item-box open">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-301</span>
+                      <div>
+                        <span class="sib-title">Data Structures</span>
+                        <span class="sib-sem">Semester 3 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Arrays & Stacks ADT</div><div class="ucm-desc">Array representations, Stack LIFO operations, infix-to-postfix conversion, evaluation of postfix expressions, Circular queues.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Linked Lists</div><div class="ucm-desc">Singly, doubly, and circular linked lists, pointer manipulation, in-place list reversal, polynomial addition.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Trees & AVL Rotations</div><div class="ucm-desc">Binary Search Trees (BST), AVL Tree balancing factor, single & double rotations (LL, RR, LR, RL), Threaded trees.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Graphs & Traversal</div><div class="ucm-desc">Adjacency matrix & list, BFS queue traversal, DFS recursive traversal, Dijkstra shortest path, Prim's and Kruskal's MST.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Sorting & Hashing</div><div class="ucm-desc">Quick Sort, Merge Sort recurrence, Heap Sort, Hash table collisions, linear probing and chaining techniques.</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subject 2: CS-402 -->
+                <div class="subject-item-box open">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-402</span>
+                      <div>
+                        <span class="sib-title">Analysis & Design of Algorithms (ADA)</span>
+                        <span class="sib-sem">Semester 4 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Asymptotic Analysis</div><div class="ucm-desc">Big-O, Omega, Theta notations, Master Theorem for recurrences, Divide and Conquer paradigms.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Greedy Strategy</div><div class="ucm-desc">Fractional Knapsack problem, Huffman coding, Job Sequencing with deadlines, Minimum Spanning Trees.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Dynamic Programming</div><div class="ucm-desc">0/1 Knapsack problem table, Matrix Chain Multiplication, Longest Common Subsequence (LCS), Floyd-Warshall.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Backtracking & Branch-and-Bound</div><div class="ucm-desc">N-Queens problem, Graph Coloring algorithm, Hamiltonian cycle, Travelling Salesperson problem.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: NP-Completeness & Matching</div><div class="ucm-desc">P, NP, NP-Complete and NP-Hard classes, Cook's theorem, KMP string matching, Rabin-Karp algorithm.</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subject 3: CS-403 -->
+                <div class="subject-item-box">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-403</span>
+                      <div>
+                        <span class="sib-title">Operating Systems</span>
+                        <span class="sib-sem">Semester 4 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Process Management</div><div class="ucm-desc">Process control block (PCB), context switching, threads, system calls.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: CPU Scheduling & Synchronization</div><div class="ucm-desc">FCFS, SJF, Round Robin scheduling, critical section problem, Semaphores, Peterson's solution.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Deadlocks</div><div class="ucm-desc">Deadlock conditions, Resource allocation graph, Banker's algorithm for avoidance, detection & recovery.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Memory Management</div><div class="ucm-desc">Paging, Segmentation, Virtual memory, Demand paging, Page replacement algorithms (FIFO, LRU, Optimal).</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Storage & File Systems</div><div class="ucm-desc">Disk scheduling (SSTF, SCAN, C-SCAN), File allocation methods, Directory structure.</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Year 3 Container -->
+            <div class="admin-year-content" id="ayc-year-3" style="display:none;">
+              <div class="subjects-tree-stack">
+                <!-- Subject 1: CS-501 -->
+                <div class="subject-item-box open">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-501</span>
+                      <div>
+                        <span class="sib-title">Theory of Computation (TOC)</span>
+                        <span class="sib-sem">Semester 5 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Automata & Languages</div><div class="ucm-desc">DFA, NFA, epsilon-NFA, conversion from NFA to DFA, Minimization of DFA using table-filling.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Regular Languages</div><div class="ucm-desc">Regular expressions, Arden's theorem, Pumping Lemma for regular sets, closure properties.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Context-Free Grammars</div><div class="ucm-desc">Derivation trees, ambiguity, Chomsky Normal Form (CNF), Greibach Normal Form (GNF).</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Pushdown Automata (PDA)</div><div class="ucm-desc">Deterministic & Non-deterministic PDA, acceptance by empty stack and final state, equivalence with CFG.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Turing Machines & Computability</div><div class="ucm-desc">Turing machine model, Halting problem, Church-Turing thesis, Post Correspondence Problem (PCP).</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subject 2: CS-502 -->
+                <div class="subject-item-box">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-502</span>
+                      <div>
+                        <span class="sib-title">Database Management Systems (DBMS)</span>
+                        <span class="sib-sem">Semester 5 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Data Models & ER Model</div><div class="ucm-desc">Three-tier architecture, ER diagrams, entity sets, relationship constraints, extended ER features.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Relational Algebra & SQL</div><div class="ucm-desc">Selection, projection, joins, SQL queries, DDL, DML, views, nested queries and triggers.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Database Normalization</div><div class="ucm-desc">Functional dependencies, 1NF, 2NF, 3NF, Boyce-Codd Normal Form (BCNF), multi-valued dependencies (4NF).</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Transaction & Concurrency</div><div class="ucm-desc">ACID properties, serializability, two-phase locking (2PL) protocol, timestamp ordering, deadlock handling.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Indexing & Storage</div><div class="ucm-desc">B-Trees, B+ Trees indexing structures, static and dynamic hashing, crash recovery logs.</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subject 3: CS-602 -->
+                <div class="subject-item-box">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-602</span>
+                      <div>
+                        <span class="sib-title">Computer Networks</span>
+                        <span class="sib-sem">Semester 6 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Network Models</div><div class="ucm-desc">OSI 7-layer reference model, TCP/IP protocol suite, transmission media, switching techniques.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Data Link Layer</div><div class="ucm-desc">Framing, Error control (CRC, Checksum), Sliding Window protocols (Stop-and-Wait, Go-Back-N, Selective Repeat).</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Network Layer</div><div class="ucm-desc">IPv4 addressing, subnetting, CIDR, Distance Vector Routing, Link State Routing (OSPF), BGP.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Transport Layer</div><div class="ucm-desc">TCP 3-way handshake, flow control, congestion control algorithms (Leaky Bucket, Token Bucket), UDP.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Application Layer</div><div class="ucm-desc">DNS domain resolution, HTTP/HTTPS protocols, FTP, SMTP email transfer, Network security basics.</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Year 4 Container -->
+            <div class="admin-year-content" id="ayc-year-4" style="display:none;">
+              <div class="subjects-tree-stack">
+                <!-- Subject 1: CS-701 -->
+                <div class="subject-item-box open">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-701</span>
+                      <div>
+                        <span class="sib-title">Artificial Intelligence & Machine Learning</span>
+                        <span class="sib-sem">Semester 7 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: AI Search Strategies</div><div class="ucm-desc">State space search, BFS, DFS, Heuristic search, A* algorithm, AO* algorithm, Minimax game playing.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Knowledge Representation</div><div class="ucm-desc">Propositional logic, First-Order Predicate Logic (FOPL), resolution refutation, semantic networks, frames.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Supervised Learning</div><div class="ucm-desc">Linear regression, Logistic classification, Decision Trees (ID3), Support Vector Machines (SVM), Naive Bayes.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Neural Networks & Deep Learning</div><div class="ucm-desc">Perceptron learning rule, Multilayer perceptron, Backpropagation gradient descent, CNN overview.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Unsupervised & Reinforcement</div><div class="ucm-desc">K-Means clustering, PCA dimensionality reduction, Q-Learning reward mechanisms, NLP tokenization.</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subject 2: CS-702 -->
+                <div class="subject-item-box">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-702</span>
+                      <div>
+                        <span class="sib-title">Cryptography & Information Security</span>
+                        <span class="sib-sem">Semester 7 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Classical Cryptography</div><div class="ucm-desc">Symmetric key ciphers, DES, AES structure, Block cipher modes of operation (CBC, CTR).</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Public Key Cryptography</div><div class="ucm-desc">Number theory, Fermat's Little Theorem, RSA algorithm, Diffie-Hellman Key Exchange, ECC.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Hash Functions & Signatures</div><div class="ucm-desc">SHA-256, MD5, Digital Signature Standard (DSS), HMAC message authentication codes.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Network Security Protocols</div><div class="ucm-desc">IPsec architecture, SSL/TLS handshake, Kerberos authentication, PGP email security.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: System Attacks & Defenses</div><div class="ucm-desc">Buffer overflow, SQL injection, Denial of Service (DoS/DDoS), Firewalls and Intrusion Detection (IDS).</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subject 3: CS-801 -->
+                <div class="subject-item-box">
+                  <div class="sib-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="sib-left">
+                      <span class="sib-code">CS-801</span>
+                      <div>
+                        <span class="sib-title">Cloud Computing & Distributed Systems</span>
+                        <span class="sib-sem">Semester 8 • 4 Credits</span>
+                      </div>
+                    </div>
+                    <div class="sib-right">
+                      <span class="sib-badge">5 Units Complete</span>
+                      <span class="sib-toggle-icon">▼</span>
+                    </div>
+                  </div>
+                  <div class="sib-body">
+                    <div class="units-grid">
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT I: Cloud Delivery Models</div><div class="ucm-desc">IaaS, PaaS, SaaS, Public, Private & Hybrid clouds, Service Level Agreements (SLAs).</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT II: Virtualization Technologies</div><div class="ucm-desc">Hypervisors (Type 1 & Type 2), CPU and memory virtualization, containers vs virtual machines.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT III: Distributed Storage & Compute</div><div class="ucm-desc">Google File System (GFS), Hadoop Distributed File System (HDFS), MapReduce programming model.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT IV: Containers & Orchestration</div><div class="ucm-desc">Docker container lifecycle, Kubernetes architecture (Pods, Services, Deployments), microservices.</div></div>
+                      <div class="unit-card-mini"><div class="ucm-title">UNIT V: Cloud Security & Governance</div><div class="ucm-desc">Shared responsibility model, IAM policies, cloud data privacy, disaster recovery and backup.</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </section>
+          </div> <!-- /#admin-subview-overview -->
+
+          <!-- SUBVIEW 2: USER MANAGEMENT -->
+          <div id="admin-subview-users" class="admin-subview" style="display:none;">
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>👥 Registered User Accounts & Role Governance</h3>
+                  <p>Inspect profiles, switch user roles, and activate/deactivate accounts with last-admin protection.</p>
+                </div>
+                <div class="atc-actions">
+                  <input type="text" id="adm-users-search" class="admin-search-input" placeholder="Search name or email..." />
+                  <select id="adm-users-filter-role" class="admin-filter-select">
+                    <option value="">All Roles</option>
+                    <option value="student">Student</option>
+                    <option value="contributor">Contributor</option>
+                    <option value="reviewer">Reviewer</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <button type="button" class="view-all-link-btn" id="btn-refresh-admin-users">🔄 Refresh</button>
+                </div>
+              </div>
+              <div class="admin-table-scroll">
+                <table class="admin-table" id="adm-users-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Full Name</th>
+                      <th>Email Address</th>
+                      <th>Current Role</th>
+                      <th>Status</th>
+                      <th>Submissions</th>
+                      <th>Reviews</th>
+                      <th>Registered</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-users-tbody">
+                    <tr><td colspan="9" style="text-align:center; padding:20px; color:#8fa3bf;">Loading registered users...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- SUBVIEW 3: WORKLOAD & REVIEWER MANAGEMENT -->
+          <div id="admin-subview-workload" class="admin-subview" style="display:none;">
+            <section class="admin-table-container" style="margin-bottom:20px;">
+              <div class="atc-header">
+                <div>
+                  <h3>🧑‍🏫 Reviewer Workload & Assignment Queue</h3>
+                  <p>Monitor pending reviewer workloads and balance review capacity across subjects.</p>
+                </div>
+                <button type="button" class="view-all-link-btn" id="btn-refresh-admin-reviewers">🔄 Refresh Reviewers</button>
+              </div>
+              <div class="admin-table-scroll">
+                <table class="admin-table" id="adm-reviewers-table">
+                  <thead>
+                    <tr>
+                      <th>User ID</th>
+                      <th>Reviewer Name</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Assigned Pending</th>
+                      <th>Completed Reviews</th>
+                      <th>Workload Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-reviewers-tbody">
+                    <tr><td colspan="7" style="text-align:center; padding:20px; color:#8fa3bf;">Loading reviewers...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>✍️ Contributor Activity & Quality Scoring</h3>
+                  <p>Track submission volume, approval rates, and community quality scores.</p>
+                </div>
+                <button type="button" class="view-all-link-btn" id="btn-refresh-admin-contributors">🔄 Refresh Contributors</button>
+              </div>
+              <div class="admin-table-scroll">
+                <table class="admin-table" id="adm-contributors-table">
+                  <thead>
+                    <tr>
+                      <th>User ID</th>
+                      <th>Contributor Name</th>
+                      <th>Email</th>
+                      <th>Total Uploads</th>
+                      <th>Approved</th>
+                      <th>Rejected</th>
+                      <th>Pending</th>
+                      <th>Quality Score</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-contributors-tbody">
+                    <tr><td colspan="8" style="text-align:center; padding:20px; color:#8fa3bf;">Loading contributors...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- SUBVIEW 4: QUESTION BANK MANAGEMENT -->
+          <div id="admin-subview-papers" class="admin-subview" style="display:none;">
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>📄 University Question Bank & Publication Control</h3>
+                  <p>Manage verified question papers. Unpublishing immediately removes content from student search and AI RAG.</p>
+                </div>
+                <button type="button" class="view-all-link-btn" id="btn-refresh-admin-papers">🔄 Refresh Papers</button>
+              </div>
+              <div class="admin-table-scroll">
+                <table class="admin-table" id="adm-papers-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Subject Code</th>
+                      <th>Subject Name</th>
+                      <th>Exam Year & Session</th>
+                      <th>Exam Type</th>
+                      <th>Questions</th>
+                      <th>Verification</th>
+                      <th>Published</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-papers-tbody">
+                    <tr><td colspan="9" style="text-align:center; padding:20px; color:#8fa3bf;">Loading question papers...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- SUBVIEW 5: ACADEMIC SUBJECTS & SYLLABUS -->
+          <div id="admin-subview-subjects" class="admin-subview" style="display:none;">
+            <section class="admin-table-container" style="margin-bottom:20px;">
+              <div class="atc-header">
+                <div>
+                  <h3>📚 University Subject Master</h3>
+                  <p>Configure course codes, schemes, and academic branches.</p>
+                </div>
+                <button type="button" class="btn-primary-action" id="btn-open-add-subject-modal" style="padding:6px 14px; font-size:0.8rem;">+ Add University Subject</button>
+              </div>
+              <div class="admin-table-scroll">
+                <table class="admin-table" id="adm-subjects-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Code</th>
+                      <th>Subject Name</th>
+                      <th>Semester</th>
+                      <th>Branch</th>
+                      <th>Credits</th>
+                      <th>Linked Papers</th>
+                      <th>Syllabus Units</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-subjects-tbody">
+                    <tr><td colspan="8" style="text-align:center; padding:20px; color:#8fa3bf;">Loading subjects...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>📋 Syllabus Coverage & Readiness</h3>
+                  <p>Unit and topic coverage breakdown across all RGPV subjects (Target: 5 units per subject).</p>
+                </div>
+                <button type="button" class="view-all-link-btn" id="btn-refresh-admin-coverage">🔄 Refresh Coverage</button>
+              </div>
+              <div class="admin-table-scroll">
+                <table class="admin-table" id="adm-coverage-table">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Semester</th>
+                      <th>Units Covered</th>
+                      <th>Topics Count</th>
+                      <th>Exam Papers</th>
+                      <th>Curriculum Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-coverage-tbody">
+                    <tr><td colspan="6" style="text-align:center; padding:20px; color:#8fa3bf;">Loading coverage report...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- SUBVIEW 6: MODERATION & DISPUTES -->
+          <div id="admin-subview-moderation" class="admin-subview" style="display:none;">
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>🛡️ Moderation Control Panel & Decision Overrides</h3>
+                  <p>Resolve disputes, address flagged content, and execute administrative review decisions with auditable reasons.</p>
+                </div>
+                <button type="button" class="view-all-link-btn" id="btn-refresh-admin-moderation">🔄 Refresh Queue</button>
+              </div>
+              <div class="admin-table-scroll">
+                <table class="admin-table" id="adm-moderation-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Submitter</th>
+                      <th>Subject</th>
+                      <th>Year</th>
+                      <th>Status</th>
+                      <th>Flagged</th>
+                      <th>Reviewer / Notes</th>
+                      <th>Submitted At</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-moderation-tbody">
+                    <tr><td colspan="9" style="text-align:center; padding:20px; color:#8fa3bf;">Loading moderation queue...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- SUBVIEW 7: ANALYTICS & REPORTS -->
+          <div id="admin-subview-analytics" class="admin-subview" style="display:none;">
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>📈 Platform Analytics, Historical Trends & CSV Export</h3>
+                  <p>Live aggregates calculated directly from database records. Export full audit and platform reports.</p>
+                </div>
+                <button type="button" class="btn-primary-action" id="btn-export-admin-csv" style="padding:8px 16px; font-size:0.85rem; background:linear-gradient(135deg, #10b981, #0ea5e9);">
+                  📥 Export Platform CSV Report
+                </button>
+              </div>
+              <div id="adm-analytics-content" style="padding:16px;">
+                <div class="units-grid" id="adm-analytics-cards" style="margin-bottom:20px;">
+                  <!-- Dynamically populated -->
+                </div>
+                <div class="atc-header" style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.06); padding-top:16px;">
+                  <h4>Branch-Wise Question Paper Distribution</h4>
+                </div>
+                <div class="admin-table-scroll">
+                  <table class="admin-table" id="adm-branch-analytics-table">
+                    <thead>
+                      <tr>
+                        <th>Branch Code</th>
+                        <th>Branch Name</th>
+                        <th>Verified Question Papers</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adm-branch-analytics-tbody">
+                      <tr><td colspan="3" style="text-align:center; padding:16px; color:#8fa3bf;">Loading analytics...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- SUBVIEW 8: ANNOUNCEMENTS -->
+          <div id="admin-subview-announcements" class="admin-subview" style="display:none;">
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>📢 University Announcements & Portal Notices</h3>
+                  <p>Broadcast alerts to students, contributors, reviewers, or all registered accounts.</p>
+                </div>
+                <button type="button" class="btn-primary-action" id="btn-open-create-announcement-modal" style="padding:6px 14px; font-size:0.8rem;">+ Create Announcement</button>
+              </div>
+              <div id="adm-announcements-container" style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+                <div style="color:#8fa3bf; text-align:center; padding:20px;">Loading announcements...</div>
+              </div>
+            </section>
+          </div>
+
+          <!-- SUBVIEW 9: AUDIT LOGS -->
+          <div id="admin-subview-audit" class="admin-subview" style="display:none;">
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>📜 Immutable Platform Audit Trail</h3>
+                  <p>Append-only audit record of role changes, activations, review decisions, and publication overrides.</p>
+                </div>
+                <div class="atc-actions">
+                  <input type="text" id="adm-audit-filter-action" class="admin-search-input" placeholder="Filter by action..." />
+                  <button type="button" class="view-all-link-btn" id="btn-refresh-admin-audit">🔄 Refresh Logs</button>
+                </div>
+              </div>
+              <div class="admin-table-scroll">
+                <table class="admin-table" id="adm-audit-table">
+                  <thead>
+                    <tr>
+                      <th>Timestamp</th>
+                      <th>Actor</th>
+                      <th>Action</th>
+                      <th>Entity Type</th>
+                      <th>Entity ID</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-audit-tbody">
+                    <tr><td colspan="6" style="text-align:center; padding:20px; color:#8fa3bf;">Loading audit logs...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- SUBVIEW 10: SYSTEM HEALTH & SETTINGS -->
+          <div id="admin-subview-health" class="admin-subview" style="display:none;">
+            <section class="admin-table-container">
+              <div class="atc-header">
+                <div>
+                  <h3>⚙️ Operational Diagnostics & System Health</h3>
+                  <p>Real-time database connectivity, storage settings, and platform configuration (Zero-secret disclosure).</p>
+                </div>
+                <button type="button" class="view-all-link-btn" id="btn-refresh-admin-health">🔄 Run Diagnostics</button>
+              </div>
+              <div id="adm-health-container" style="padding:16px;">
+                <div style="color:#8fa3bf; text-align:center; padding:20px;">Running system diagnostics...</div>
+              </div>
+            </section>
+          </div>
+
+        </div> <!-- /#admin-home-content -->
+      </div>
+
+      <!-- =====================================================
+           PAGE 2: COURSES CATALOG VIEW
+           ===================================================== -->
+      <div id="view-courses" class="dashboard-page-view" style="display:none;">
+        <div class="view-header-bar">
+          <div>
+            <h2 class="view-title">RGPV B.Tech Courses Catalog</h2>
+            <p class="view-desc">Official curriculum courses under CBGS Scheme with real exam questions and units.</p>
+          </div>
+          <button class="btn-primary-action" id="btn-add-course-trigger">+ Enroll New Subject</button>
+        </div>
+
+        <div class="cards-grid-courses">
+          <div class="course-detail-card">
+            <div class="cdc-top">
+              <span class="cdc-badge">Semester 3 • Core</span>
+              <span class="cdc-credits">Credits: 4</span>
+            </div>
+            <h3 class="cdc-title">Data Structures (CS-301)</h3>
+            <p class="cdc-desc">Stacks, Queues, Linked Lists, Binary Trees, AVL Rotations, Graph Traversals (BFS/DFS), and Hashing techniques.</p>
+            <div class="cdc-stats">
+              <div class="cdc-stat-item"><strong>5 Units</strong><span>Indexed</span></div>
+              <div class="cdc-stat-item"><strong>14 PYQs</strong><span>Available</span></div>
+              <div class="cdc-stat-item"><strong>92%</strong><span>High Importance</span></div>
+            </div>
+            <div class="cdc-footer">
+              <button class="pill-btn btn-study" data-subject="Data Structures (CS-301)">Study Notes</button>
+              <button class="pill-btn btn-quiz" data-subject="Data Structures (CS-301)">Take Quiz</button>
+            </div>
+          </div>
+
+          <div class="course-detail-card">
+            <div class="cdc-top">
+              <span class="cdc-badge">Semester 4 • Core</span>
+              <span class="cdc-credits">Credits: 4</span>
+            </div>
+            <h3 class="cdc-title">Analysis & Design of Algorithms (CS-402)</h3>
+            <p class="cdc-desc">Asymptotic Notations, Master Theorem, Divide & Conquer, Dynamic Programming (0/1 Knapsack), Greedy MST, and NP-Completeness.</p>
+            <div class="cdc-stats">
+              <div class="cdc-stat-item"><strong>5 Units</strong><span>Indexed</span></div>
+              <div class="cdc-stat-item"><strong>12 PYQs</strong><span>Available</span></div>
+              <div class="cdc-stat-item"><strong>95%</strong><span>High Importance</span></div>
+            </div>
+            <div class="cdc-footer">
+              <button class="pill-btn btn-study" data-subject="Algorithms (CS-402)">Study Notes</button>
+              <button class="pill-btn btn-quiz" data-subject="Algorithms (CS-402)">Take Quiz</button>
+            </div>
+          </div>
+
+          <div class="course-detail-card">
+            <div class="cdc-top">
+              <span class="cdc-badge">Semester 5 • Core</span>
+              <span class="cdc-credits">Credits: 4</span>
+            </div>
+            <h3 class="cdc-title">Theory of Computation (CS-501)</h3>
+            <p class="cdc-desc">Finite Automata (DFA, NFA), Regular Expressions, Context-Free Grammars, Pushdown Automata, and Turing Machines.</p>
+            <div class="cdc-stats">
+              <div class="cdc-stat-item"><strong>5 Units</strong><span>Indexed</span></div>
+              <div class="cdc-stat-item"><strong>10 PYQs</strong><span>Available</span></div>
+              <div class="cdc-stat-item"><strong>88%</strong><span>Core Theory</span></div>
+            </div>
+            <div class="cdc-footer">
+              <button class="pill-btn btn-study" data-subject="Theory of Computation (CS-501)">Study Notes</button>
+              <button class="pill-btn btn-quiz" data-subject="Theory of Computation (CS-501)">Take Quiz</button>
+            </div>
+          </div>
+
+          <div class="course-detail-card">
+            <div class="cdc-top">
+              <span class="cdc-badge">Semester 4 • Mandatory</span>
+              <span class="cdc-credits">Credits: 3</span>
+            </div>
+            <h3 class="cdc-title">Energy & Environmental Engineering (BSC-401)</h3>
+            <p class="cdc-desc">Ecosystems, Renewable Energy, Air & Water Pollution, Solid Waste Management, and Environmental Impact Assessment (EIA).</p>
+            <div class="cdc-stats">
+              <div class="cdc-stat-item"><strong>5 Units</strong><span>Indexed</span></div>
+              <div class="cdc-stat-item"><strong>8 PYQs</strong><span>Available</span></div>
+              <div class="cdc-stat-item"><strong>80%</strong><span>Foundation</span></div>
+            </div>
+            <div class="cdc-footer">
+              <button class="pill-btn btn-study" data-subject="Environmental Engineering (BSC-401)">Study Notes</button>
+              <button class="pill-btn btn-quiz" data-subject="Environmental Engineering (BSC-401)">Take Quiz</button>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Bottom 3-Column Section -->
-    <section class="tri-grid">
-
-      <!-- Column 1: Upload Syllabus -->
-      <div class="panel upload-panel">
-        <div class="panel-header">
-          <div class="panel-header-title">
-            <svg class="header-cap-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-            </svg>
-            <h3>Upload Syllabus</h3>
+      <!-- =====================================================
+           PAGE 3: SYLLABUS EXPLORER VIEW
+           ===================================================== -->
+      <div id="view-syllabus" class="dashboard-page-view" style="display:none;">
+        <div class="view-header-bar">
+          <div>
+            <h2 class="view-title">RGPV Official Syllabus Explorer</h2>
+            <p class="view-desc">Choice Based Grading System (CBGS-2019/2024) Verified Unit Breakdown</p>
           </div>
-          <p class="panel-subtitle">Upload your PDF syllabus to get started</p>
+          <div class="syllabus-select-wrap">
+            <select class="styled-select" id="select-syllabus-subject">
+              <option value="cs301">CS-301: Data Structures</option>
+              <option value="cs402">CS-402: Analysis & Design of Algorithms</option>
+            </select>
+          </div>
         </div>
 
-        <div class="dropzone-box" id="dropzone">
-          <div class="drop-icon-wrap">
-            <!-- Outlined PDF document icon -->
-            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <div class="syllabus-accordion-stack" id="syllabus-units-container">
+          <!-- Accordion Unit 1 -->
+          <div class="syllabus-unit-box active">
+            <div class="sub-header">
+              <div class="sub-title-left">
+                <span class="unit-tag">UNIT I</span>
+                <h4>Introduction to Data Structures, Stacks & Queues</h4>
+              </div>
+              <span class="sub-weight">14 Marks Expected</span>
+            </div>
+            <div class="sub-content">
+              <p>Linear vs Non-linear structures, Array representation, Stack ADT, Infix to Postfix conversion using Stacks, Circular Queue array implementation, Deque and Priority Queues.</p>
+              <div class="sub-topics-pills">
+                <span class="topic-pill">Stack ADT</span>
+                <span class="topic-pill">Infix to Postfix</span>
+                <span class="topic-pill">Circular Queues</span>
+                <span class="topic-pill">Priority Queue</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Unit 2 -->
+          <div class="syllabus-unit-box active">
+            <div class="sub-header">
+              <div class="sub-title-left">
+                <span class="unit-tag">UNIT II</span>
+                <h4>Linked Lists & Dynamic Memory</h4>
+              </div>
+              <span class="sub-weight">14 Marks Expected</span>
+            </div>
+            <div class="sub-content">
+              <p>Singly linked lists, Doubly linked lists, Circular linked lists, Node insertion and deletion, In-place reversal algorithm, Polynomial representation and addition.</p>
+              <div class="sub-topics-pills">
+                <span class="topic-pill">Singly Linked List</span>
+                <span class="topic-pill">Doubly Linked List</span>
+                <span class="topic-pill">Polynomial Addition</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Unit 3 -->
+          <div class="syllabus-unit-box active">
+            <div class="sub-header">
+              <div class="sub-title-left">
+                <span class="unit-tag">UNIT III</span>
+                <h4>Trees & Hierarchical Structures</h4>
+              </div>
+              <span class="sub-weight">14 Marks Expected</span>
+            </div>
+            <div class="sub-content">
+              <p>Binary Trees, BST properties and 2-child deletion algorithm, AVL Trees with balance factors and rotations (LL, RR, LR, RL), Threaded Binary Trees, Introduction to B-Trees.</p>
+              <div class="sub-topics-pills">
+                <span class="topic-pill">Binary Search Tree</span>
+                <span class="topic-pill">AVL Tree Rotations</span>
+                <span class="topic-pill">Threaded Trees</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Unit 4 -->
+          <div class="syllabus-unit-box active">
+            <div class="sub-header">
+              <div class="sub-title-left">
+                <span class="unit-tag">UNIT IV</span>
+                <h4>Graph Algorithms</h4>
+              </div>
+              <span class="sub-weight">14 Marks Expected</span>
+            </div>
+            <div class="sub-content">
+              <p>Adjacency Matrix, Adjacency List, BFS and DFS traversals, Minimum Spanning Trees (Prim's and Kruskal's algorithms), Shortest path via Dijkstra's algorithm.</p>
+              <div class="sub-topics-pills">
+                <span class="topic-pill">BFS & DFS</span>
+                <span class="topic-pill">Prim's MST</span>
+                <span class="topic-pill">Kruskal's MST</span>
+                <span class="topic-pill">Dijkstra</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Unit 5 -->
+          <div class="syllabus-unit-box active">
+            <div class="sub-header">
+              <div class="sub-title-left">
+                <span class="unit-tag">UNIT V</span>
+                <h4>Searching, Sorting & Hashing</h4>
+              </div>
+              <span class="sub-weight">14 Marks Expected</span>
+            </div>
+            <div class="sub-content">
+              <p>Quick Sort, Merge Sort recurrence relations, Heap Sort, Open addressing collision resolution (Linear Probing, Quadratic Probing), Chaining.</p>
+              <div class="sub-topics-pills">
+                <span class="topic-pill">Quick Sort</span>
+                <span class="topic-pill">Merge Sort</span>
+                <span class="topic-pill">Linear Probing</span>
+                <span class="topic-pill">Quadratic Probing</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================
+           PAGE 4: PRACTICE & DIAGNOSTIC QUIZ VIEW
+           ===================================================== -->
+      <div id="view-practice" class="dashboard-page-view" style="display:none;">
+        <div class="view-header-bar">
+          <div>
+            <h2 class="view-title">RGPV Practice & Diagnostic Arena</h2>
+            <p class="view-desc">Simulate actual university pattern questions with instant AI evaluation and grading.</p>
+          </div>
+        </div>
+
+        <div class="practice-cards-grid">
+          <div class="practice-mode-card">
+            <div class="pmc-badge cyan">Quick Test</div>
+            <h3>5-Question Diagnostic Sprint</h3>
+            <p>Rapid assessment covering core Data Structures and Algorithm design questions.</p>
+            <div class="pmc-meta">⏱️ 5 Minutes • 5 Marks • Instant Score</div>
+            <button class="action-btn grad-cyan" id="btn-practice-quick" onclick="openQuizModal('5-Question Diagnostic Sprint')">Start Diagnostic Sprint</button>
+          </div>
+
+          <div class="practice-mode-card">
+            <div class="pmc-badge pink">Unit-Wise Test</div>
+            <h3>Trees & AVL Tree Rotations</h3>
+            <p>Practice numerical and theoretical problems on Balance Factors, LL, RR, LR rotations.</p>
+            <div class="pmc-meta">⏱️ 10 Minutes • 10 Questions • Detailed Hints</div>
+            <button class="action-btn grad-pink" id="btn-practice-avl" onclick="openQuizModal('Trees & AVL Tree Rotations Practice')">Practice AVL Trees</button>
+          </div>
+
+          <div class="practice-mode-card">
+            <div class="pmc-badge purple">Algorithm Design</div>
+            <h3>Master Theorem & Dynamic Programming</h3>
+            <p>Recurrence relations, 0/1 Knapsack, Greedy MST algorithms, and complexity analysis.</p>
+            <div class="pmc-meta">⏱️ 15 Minutes • 10 Questions • Code Snippets</div>
+            <button class="action-btn grad-purple" id="btn-practice-ada" onclick="openQuizModal('Algorithms & Dynamic Programming Quiz')">Practice Algorithms</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================
+           PAGE 5: PYQS (PREVIOUS YEAR QUESTIONS) VIEW
+           ===================================================== -->
+      <div id="view-pyq" class="dashboard-page-view" style="display:none;">
+        <div class="view-header-bar">
+          <div>
+            <h2 class="view-title">RGPV Previous Year Question Papers (PYQs)</h2>
+            <p class="view-desc">Verified question papers with unit breakdown and official marking scheme (70 Marks Total).</p>
+          </div>
+          <span class="pyq-count-badge">3 Exam Papers Verified</span>
+        </div>
+
+        <div class="pyq-papers-stack">
+          <!-- Paper 1 -->
+          <div class="pyq-paper-card">
+            <div class="ppc-header">
+              <div class="ppc-title-wrap">
+                <span class="exam-session-tag">DECEMBER 2023</span>
+                <h4>Data Structures (CS-301) — Regular Examination</h4>
+              </div>
+              <span class="ppc-marks">Total Marks: 70</span>
+            </div>
+            <div class="ppc-body">
+              <div class="pyq-question-item">
+                <span class="q-num">Q1 (a) [7 Marks]</span>
+                <p>What is a Stack ADT? Explain the algorithm to convert an infix expression into a postfix expression using stack with a suitable example: (A + B * C) / (D - E).</p>
+              </div>
+              <div class="pyq-question-item">
+                <span class="q-num">Q1 (b) [7 Marks]</span>
+                <p>Explain the circular queue with its insertion and deletion algorithms. Why is a circular queue preferred over a linear queue?</p>
+              </div>
+              <div class="pyq-question-item">
+                <span class="q-num">Q2 (a) [7 Marks]</span>
+                <p>Write a C/C++ function to reverse a singly linked list in-place without using extra auxiliary memory.</p>
+              </div>
+              <div class="pyq-question-item">
+                <span class="q-num">Q3 (a) [14 Marks]</span>
+                <p>Construct an AVL tree by inserting the following key elements sequentially: 21, 26, 30, 9, 4, 14, 28, 18, 15, 10. Show every rotation step clearly.</p>
+              </div>
+            </div>
+            <div class="ppc-footer">
+              <button class="pill-btn btn-study" data-subject="CS-301 Dec 2023 Solutions">View AI Model Answers</button>
+            </div>
+          </div>
+
+          <!-- Paper 2 -->
+          <div class="pyq-paper-card">
+            <div class="ppc-header">
+              <div class="ppc-title-wrap">
+                <span class="exam-session-tag">JUNE 2023</span>
+                <h4>Data Structures (CS-301) — Main Exam</h4>
+              </div>
+              <span class="ppc-marks">Total Marks: 70</span>
+            </div>
+            <div class="ppc-body">
+              <div class="pyq-question-item">
+                <span class="q-num">Q1 (a) [7 Marks]</span>
+                <p>Define Binary Search Tree (BST). Explain how deletion of a node having two children is performed with an illustrative example.</p>
+              </div>
+              <div class="pyq-question-item">
+                <span class="q-num">Q2 (a) [7 Marks]</span>
+                <p>Trace Quick Sort algorithm on array [45, 12, 89, 34, 70, 23, 56]. Discuss its best, average, and worst-case time complexities.</p>
+              </div>
+            </div>
+            <div class="ppc-footer">
+              <button class="pill-btn btn-study" data-subject="CS-301 June 2023 Solutions">View AI Model Answers</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================
+           PAGE 6: COLLEGE / RGPV INFO VIEW
+           ===================================================== -->
+      <div id="view-college" class="dashboard-page-view" style="display:none;">
+        <div class="view-header-bar">
+          <div>
+            <h2 class="view-title">Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)</h2>
+            <p class="view-desc">Madhya Pradesh State Technological University, Airport Road, Gandhi Nagar, Bhopal</p>
+          </div>
+        </div>
+
+        <div class="college-info-grid">
+          <div class="college-card">
+            <div class="cc-header">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <h3>Official University Links</h3>
+            </div>
+            <ul class="cc-links-list">
+              <li><a href="https://www.rgpv.ac.in" target="_blank" rel="noopener">🌐 Official Portal: rgpv.ac.in</a></li>
+              <li><a href="https://www.rgpv.ac.in/Uni/Frm_ViewScheme.aspx" target="_blank" rel="noopener">📋 Academic Schemes & Syllabi</a></li>
+              <li><a href="https://result.rgpv.ac.in" target="_blank" rel="noopener">🎯 RGPV Examination Results Portal</a></li>
+              <li><a href="https://www.rgpvonline.com" target="_blank" rel="noopener">📄 RGPV Question Papers Repository</a></li>
+            </ul>
+          </div>
+
+          <div class="college-card">
+            <div class="cc-header">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <h3>CBGS Grading Formula</h3>
+            </div>
+            <div class="cgpa-formula-box">
+              <div class="cgpa-item">
+                <span class="cgpa-lbl">Percentage Equivalent Formula:</span>
+                <span class="cgpa-val">Percentage (%) = (CGPA - 0.75) × 10</span>
+              </div>
+              <div class="cgpa-item">
+                <span class="cgpa-lbl">Passing Criterion:</span>
+                <span class="cgpa-val">Minimum 35% in End-Sem Theory (25/70 Marks)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================
+           PAGE 7: ANALYTICS VIEW
+           ===================================================== -->
+      <div id="view-analytics" class="dashboard-page-view" style="display:none;">
+        <div class="view-header-bar">
+          <div>
+            <h2 class="view-title">Personal Academic Analytics</h2>
+            <p class="view-desc">Real-time study tracking, accuracy metrics, and syllabus coverage breakdown.</p>
+          </div>
+        </div>
+
+        <div class="analytics-cards-grid">
+          <div class="analytics-card">
+            <h3>Syllabus Readiness</h3>
+            <div class="progress-ring-wrap">
+              <div class="progress-number">68%</div>
+              <span class="progress-sub">CS-301 & CS-402 Covered</span>
+            </div>
+            <div class="bar-progress-wrap">
+              <div class="bp-item">
+                <div class="bp-header"><span>CS-301 Data Structures</span><strong>82%</strong></div>
+                <div class="bp-track"><div class="bp-fill" style="width: 82%;"></div></div>
+              </div>
+              <div class="bp-item">
+                <div class="bp-header"><span>CS-402 Algorithms (ADA)</span><strong>54%</strong></div>
+                <div class="bp-track"><div class="bp-fill" style="width: 54%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <h3>Weekly Study Activity</h3>
+            <div class="activity-bars">
+              <div class="act-col"><div class="act-bar" style="height: 60%;"></div><span>Mon</span></div>
+              <div class="act-col"><div class="act-bar" style="height: 85%;"></div><span>Tue</span></div>
+              <div class="act-col"><div class="act-bar" style="height: 45%;"></div><span>Wed</span></div>
+              <div class="act-col"><div class="act-bar" style="height: 95%;"></div><span>Thu</span></div>
+              <div class="act-col"><div class="act-bar" style="height: 70%;"></div><span>Fri</span></div>
+              <div class="act-col"><div class="act-bar" style="height: 80%;"></div><span>Sat</span></div>
+              <div class="act-col"><div class="act-bar active" style="height: 90%;"></div><span>Sun</span></div>
+            </div>
+            <div class="activity-summary">
+              <span>🔥 6-Day Study Streak Active</span>
+              <strong>47.5 Hours Total</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Floating Chat Bubble (Bottom Right) -->
+    <button class="chat-fab" id="chat-fab" title="Chat with AI Tutor">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+      </svg>
+    </button>
+
+  </div> <!-- /#dashboard-wrapper -->
+
+
+  <!-- =====================================================
+       INTERACTIVE QUIZ ENGINE MODAL
+       Opens when clicking any "Take Quiz" or "Practice" button
+       ===================================================== -->
+  <div class="modal-backdrop" id="quiz-modal" style="display:none;">
+    <div class="modal-card quiz-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon-badge quiz-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
-              <line x1="9" y1="13" x2="15" y2="13"/>
-              <line x1="9" y1="17" x2="13" y2="17"/>
             </svg>
           </div>
-          <p class="drop-text">Drag &amp; drop a PDF here, or click to select one</p>
-          <span class="drop-limit">(Maximum: 4.5MB, 15 pages)</span>
-          <input type="file" id="file-input" accept=".pdf" hidden />
+          <div>
+            <h3 class="modal-title" id="quiz-modal-title">RGPV Diagnostic Practice Exam</h3>
+            <span class="modal-subtitle" id="quiz-modal-subtitle">5 Questions • Instant AI Evaluation</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btn-close-quiz-modal" onclick="closeQuizModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" id="quiz-modal-body">
+        <div class="quiz-progress-row">
+          <span id="quiz-question-counter">Question 1 of 5</span>
+          <span class="quiz-timer" id="quiz-timer">⏱️ 02:45</span>
         </div>
 
-        <!-- Upload progress feedback -->
-        <div class="upload-progress-bar" id="upload-progress" style="display:none;">
-          <div class="track"><div class="fill" id="upload-fill"></div></div>
-          <span class="progress-lbl" id="upload-lbl">Uploading…</span>
+        <div class="quiz-question-container">
+          <h4 class="quiz-question-text" id="quiz-q-text">Loading question…</h4>
+          <div class="quiz-options-stack" id="quiz-options-container">
+            <!-- Rendered by JS -->
+          </div>
+          <div class="quiz-feedback-box" id="quiz-feedback" style="display:none;"></div>
         </div>
       </div>
 
-      <!-- Column 2: Your Courses -->
-      <div class="panel courses-panel">
-        <div class="panel-header">
-          <div class="panel-header-title">
-            <svg class="header-cap-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-            </svg>
-            <h3>Your Courses</h3>
-          </div>
-          <p class="panel-subtitle">Showing 2 of 2 courses</p>
-        </div>
-
-        <div class="course-list" id="course-list">
-          <!-- Course 1: Biology / Data Structures -->
-          <div class="course-card" id="course-1">
-            <div class="course-left">
-              <div class="course-cap-badge">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                </svg>
-              </div>
-              <div class="course-meta">
-                <h4 class="course-name">Biology</h4>
-                <span class="course-code">BSC 401</span>
-              </div>
-            </div>
-            <div class="course-actions">
-              <button class="pill-btn btn-study" id="study-bio">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="5 3 19 12 5 21 5 3"/>
-                </svg>
-                Study
-              </button>
-              <button class="pill-btn btn-quiz" id="quiz-bio">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/>
-                  <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/>
-                </svg>
-                Quiz
-              </button>
-              <button class="trash-btn" id="del-bio" title="Delete Course">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                  <line x1="10" y1="11" x2="10" y2="17"/>
-                  <line x1="14" y1="11" x2="14" y2="17"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Course 2: Environmental Science / ADA -->
-          <div class="course-card" id="course-2">
-            <div class="course-left">
-              <div class="course-cap-badge">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                </svg>
-              </div>
-              <div class="course-meta">
-                <h4 class="course-name">Environmental Sci...</h4>
-                <span class="course-code">MC-401</span>
-              </div>
-            </div>
-            <div class="course-actions">
-              <button class="pill-btn btn-study" id="study-env">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="5 3 19 12 5 21 5 3"/>
-                </svg>
-                Study
-              </button>
-              <button class="pill-btn btn-quiz" id="quiz-env">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/>
-                  <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/>
-                </svg>
-                Quiz
-              </button>
-              <button class="trash-btn" id="del-env" title="Delete Course">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                  <line x1="10" y1="11" x2="10" y2="17"/>
-                  <line x1="14" y1="11" x2="14" y2="17"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
+      <div class="modal-footer quiz-footer">
+        <span class="quiz-score-hint" id="quiz-score-hint">Select an answer to submit</span>
+        <button class="action-btn grad-cyan" id="btn-quiz-next" style="display:none;">Next Question &rarr;</button>
       </div>
+    </div>
+  </div>
 
-      <!-- Column 3: Quick Actions -->
-      <div class="panel quick-actions-panel">
-        <div class="panel-header">
-          <div class="panel-header-title">
-            <h3>Quick Actions</h3>
-          </div>
-          <p class="panel-subtitle">Jump into your studies</p>
-        </div>
 
-        <div class="action-buttons-stack">
-          <!-- Button 1: Pink Gradient Start Study Session -->
-          <button class="action-btn grad-pink" id="btn-start-study">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+  <!-- =====================================================
+       INTERACTIVE STUDY SESSION MODAL
+       Opens when clicking "Start Study Session" or "Study"
+       ===================================================== -->
+  <div class="modal-backdrop" id="study-modal" style="display:none;">
+    <div class="modal-card study-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon-badge study-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2">
               <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
-            <span>Start Study Session</span>
-          </button>
+          </div>
+          <div>
+            <h3 class="modal-title" id="study-modal-title">AI Study Session Reader</h3>
+            <span class="modal-subtitle">Key Concepts, Algorithms & Exam Summaries</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btn-close-study-modal" onclick="closeStudyModal()">&times;</button>
+      </div>
 
-          <!-- Button 2: Cyan Gradient Take Random Quiz -->
-          <button class="action-btn grad-cyan" id="btn-random-quiz">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            <span>Take Random Quiz</span>
-          </button>
-
-          <!-- Button 3: Purple Gradient Upload Materials -->
-          <button class="action-btn grad-purple" id="btn-upload-materials">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <polyline points="16 16 12 12 8 16"/>
-              <line x1="12" y1="12" x2="12" y2="21"/>
-              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
-            </svg>
-            <span>Upload Materials</span>
-          </button>
+      <div class="modal-body" id="study-modal-body">
+        <div class="study-card-content" id="study-card-content">
+          <!-- Rendered by JS -->
         </div>
       </div>
 
-    </section>
+      <div class="modal-footer study-footer">
+        <button class="pill-btn btn-study" id="btn-study-prev">&larr; Previous Card</button>
+        <span id="study-card-indicator">Card 1 of 4</span>
+        <button class="pill-btn btn-study" id="btn-study-next">Next Card &rarr;</button>
+      </div>
+    </div>
+  </div>
 
-  </main>
 
-  <!-- Floating Chat Bubble (Bottom Right) -->
-  <button class="chat-fab" id="chat-fab" title="Chat with AI Tutor">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-    </svg>
-  </button>
+  <!-- =====================================================
+       AI TUTOR INTERACTIVE CHAT DRAWER
+       Opens when clicking the bottom-right chat button
+       ===================================================== -->
+  <div class="chat-drawer-backdrop" id="chat-backdrop" style="display:none;">
+    <div class="chat-drawer-container">
+      <div class="chat-drawer-header">
+        <div class="cdh-left">
+          <div class="cdh-avatar">🤖</div>
+          <div>
+            <h4>Swift-Prep AI Tutor</h4>
+            <span class="cdh-status">● Online • RGPV 2024 Knowledge Indexed</span>
+          </div>
+        </div>
+        <button class="chat-drawer-close" id="btn-close-chat">&times;</button>
+      </div>
+
+      <div class="chat-messages-area" id="chat-messages">
+        <div class="chat-msg ai">
+          <div class="msg-bubble">
+            Hello! I am your <strong>RGPV ExamMate AI Tutor</strong>. Ask me anything about Data Structures (CS-301), Algorithm Design (CS-402), or past exam questions!
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Suggested Prompt Chips -->
+      <div class="chat-suggestions-row">
+        <button type="button" class="chat-suggestion-chip">Explain Master Theorem</button>
+        <button type="button" class="chat-suggestion-chip">AVL Tree Rotations</button>
+        <button type="button" class="chat-suggestion-chip">Reverse Linked List</button>
+      </div>
+
+      <form class="chat-input-bar" id="chat-form">
+        <input type="text" id="chat-input-text" placeholder="Type your doubt (e.g. What is Stack ADT?)..." autocomplete="off" />
+        <button type="submit" id="btn-send-chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       USER PROFILE MODAL
+       ===================================================== -->
+  <div class="modal-backdrop" id="profile-modal" style="display:none;">
+    <div class="modal-card profile-modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">User Account Information</h3>
+        <button class="modal-close-btn" id="btn-close-profile-modal" onclick="closeProfileModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="profile-modal-details" id="profile-modal-content">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       ADMIN USER DIRECTORY MODAL
+       Allows Admin to view all registered users via /api/v1/auth/users
+       ===================================================== -->
+  <div class="modal-backdrop" id="users-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title">Registered Users Directory</h3>
+            <span class="modal-subtitle">Official RGPV ExamMate User Accounts</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btn-close-users-modal" title="Close Modal">&times;</button>
+      </div>
+      <div class="modal-body" id="users-modal-body">
+        <div class="modal-loader">
+          <div class="loader-spinner"></div>
+          <span>Loading registered users from server…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       REVIEWER WORKSPACE MODAL
+       ===================================================== -->
+  <div class="modal-backdrop" id="reviewer-workspace-modal" style="display:none;">
+    <div class="modal-card" style="max-width:760px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title" id="rev-modal-title">Submission Review Workspace</h3>
+            <span class="modal-subtitle" id="rev-modal-subtitle">Official Verification Checklist & Publication Control</span>
+          </div>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-rev-workspace" onclick="closeReviewerWorkspace()">&times;</button>
+      </div>
+
+      <div class="modal-body" id="rev-workspace-body" style="padding:16px;">
+        <!-- Metadata cards -->
+        <div class="form-row-2" style="margin-bottom:12px;">
+          <div class="unit-card-mini">
+            <span style="font-size:0.75rem; color:#8fa3bf;">Subject & Exam</span>
+            <div id="rwm-subject" style="font-weight:700; color:#fff; font-size:0.95rem;">-</div>
+            <div id="rwm-session" style="font-size:0.8rem; color:#38bdf8;">-</div>
+          </div>
+          <div class="unit-card-mini">
+            <span style="font-size:0.75rem; color:#8fa3bf;">Contributor & Integrity</span>
+            <div id="rwm-contributor" style="font-weight:600; color:#fff; font-size:0.85rem;">-</div>
+            <div id="rwm-checksum" style="font-family:monospace; font-size:0.72rem; color:#94a3b8; word-break:break-all;">SHA-256: -</div>
+          </div>
+        </div>
+
+        <!-- PDF Preview and Download Link -->
+        <div style="margin-bottom:16px; padding:10px 14px; background:rgba(30,41,59,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <span style="font-weight:600; color:#e2e8f0; font-size:0.85rem;">Uploaded Staging Question Paper</span>
+            <span style="display:block; font-size:0.75rem; color:#8fa3bf;">Secured authorized streaming endpoint</span>
+          </div>
+          <a id="rwm-pdf-link" href="#" target="_blank" class="action-btn grad-cyan" style="padding:6px 14px; font-size:0.8rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View / Download PDF
+          </a>
+        </div>
+
+        <!-- Verification Checklist -->
+        <div style="margin-bottom:16px;">
+          <h4 style="font-size:0.85rem; color:#38bdf8; margin-bottom:8px;">✅ Reviewer Quality Checklist (Verify before decision):</h4>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:0.8rem; color:#cbd5e1;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="chk-rgpv-header" checked />
+              <span>Official RGPV examination header and subject code matches university syllabus</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="chk-all-units" checked />
+              <span>Covers standard 5-unit curriculum structure or full paper question set</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="chk-legible" checked />
+              <span>Text, diagrams, and formulas are fully legible (no severe scan artifacts)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="chk-authentic" checked />
+              <span>Content is authentic university exam paper, not duplicate coaching material</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Reviewer Remarks / Feedback -->
+        <div class="form-group">
+          <label for="rwm-remarks">Reviewer Feedback / Decision Notes (Mandatory for Reject, Correction, or Flag)</label>
+          <div class="input-wrap">
+            <textarea id="rwm-remarks" rows="3" style="width:100%; background:transparent; border:none; color:#fff; font-size:0.85rem; padding:8px; resize:vertical; outline:none;" placeholder="Enter specific feedback or reason for your evaluation..."></textarea>
+          </div>
+        </div>
+
+        <input type="hidden" id="rwm-submission-id" value="" />
+      </div>
+
+      <div class="modal-footer" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+        <button type="button" class="pill-btn" style="background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.4);" onclick="submitReviewDecision('rejected')">❌ Reject</button>
+        <button type="button" class="pill-btn" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4);" onclick="submitReviewDecision('returned_for_correction')">✏️ Request Changes</button>
+        <button type="button" class="pill-btn" style="background:rgba(168,85,247,0.2); color:#c084fc; border:1px solid rgba(168,85,247,0.4);" onclick="submitReviewFlag()">🚩 Flag Submission</button>
+        <button type="button" class="action-btn grad-cyan" style="padding:8px 18px;" onclick="submitReviewDecision('approved')">✅ Approve & Publish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       ADMIN MODERATION & OVERRIDE MODAL
+       ===================================================== -->
+  <div class="modal-backdrop" id="admin-moderation-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Admin Moderation Resolution</h3>
+        <button type="button" class="modal-close-btn" onclick="closeAdminModerationModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <p style="font-size:0.8rem; color:#8fa3bf; margin-bottom:12px;">Execute an administrative resolution or override. Every override is logged in the permanent audit trail with the actor and reason.</p>
+        <input type="hidden" id="amm-submission-id" value="" />
+
+        <div class="form-group">
+          <label for="amm-action">Administrative Action</label>
+          <div class="input-wrap select-wrap">
+            <select id="amm-action" required>
+              <option value="approve">Approve & Publish to Student Bank</option>
+              <option value="reject">Reject Submission</option>
+              <option value="return_for_correction">Return to Contributor for Correction</option>
+              <option value="flag">Flag for Further Investigation</option>
+              <option value="unflag">Clear Flag & Reset to Pending</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="amm-reason">Mandatory Reason for Administrative Override</label>
+          <div class="input-wrap">
+            <textarea id="amm-reason" rows="3" style="width:100%; background:transparent; border:none; color:#fff; font-size:0.85rem; padding:8px; resize:vertical; outline:none;" placeholder="Detail the official justification for this moderation decision..." required></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="action-btn grad-purple" style="padding:8px 18px;" onclick="submitAdminModerationResolution()">Execute Resolution</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       ADMIN ADD SUBJECT MODAL
+       ===================================================== -->
+  <div class="modal-backdrop" id="admin-add-subject-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Add University Subject</h3>
+        <button type="button" class="modal-close-btn" onclick="closeAddSubjectModal()">&times;</button>
+      </div>
+      <form id="form-admin-add-subject" style="padding:16px;">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="as-code">Subject Code</label>
+            <div class="input-wrap">
+              <input type="text" id="as-code" placeholder="e.g. CS-501" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="as-sem">Semester (1-8)</label>
+            <div class="input-wrap select-wrap">
+              <select id="as-sem" required>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5" selected>Semester 5</option>
+                <option value="6">Semester 6</option>
+                <option value="7">Semester 7</option>
+                <option value="8">Semester 8</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="as-name">Subject Name</label>
+          <div class="input-wrap">
+            <input type="text" id="as-name" placeholder="e.g. Theory of Computation" required />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="as-branch">Branch</label>
+            <div class="input-wrap select-wrap">
+              <select id="as-branch" required>
+                <option value="1">Computer Science & Engineering (CSE)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="as-scheme">Academic Scheme</label>
+            <div class="input-wrap select-wrap">
+              <select id="as-scheme" required>
+                <option value="1">CBGS 2019</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="as-credits">Credits</label>
+          <div class="input-wrap">
+            <input type="number" id="as-credits" value="4" min="1" max="10" required />
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding:0; margin-top:16px;">
+          <button type="submit" class="action-btn grad-cyan" style="padding:8px 18px;">Create Subject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       ADMIN ASSIGN REVIEWER MODAL
+       ===================================================== -->
+  <div class="modal-backdrop" id="admin-assign-reviewer-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Assign Submission to Reviewer</h3>
+        <button type="button" class="modal-close-btn" onclick="closeAssignReviewerModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <input type="hidden" id="arm-submission-id" value="" />
+        <div class="form-group">
+          <label for="arm-reviewer-select">Select Authorized Reviewer</label>
+          <div class="input-wrap select-wrap">
+            <select id="arm-reviewer-select" required>
+              <option value="">Loading reviewers...</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="action-btn grad-cyan" style="padding:8px 18px;" onclick="submitReviewerAssignment()">Confirm Assignment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       ADMIN CREATE ANNOUNCEMENT MODAL
+       ===================================================== -->
+  <div class="modal-backdrop" id="admin-create-announcement-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Official Announcement</h3>
+        <button type="button" class="modal-close-btn" onclick="closeCreateAnnouncementModal()">&times;</button>
+      </div>
+      <form id="form-create-announcement" style="padding:16px;">
+        <div class="form-group">
+          <label for="ann-title">Announcement Title</label>
+          <div class="input-wrap">
+            <input type="text" id="ann-title" placeholder="e.g. End-Semester Examination Schedule" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ann-audience">Intended Audience</label>
+          <div class="input-wrap select-wrap">
+            <select id="ann-audience" required>
+              <option value="all" selected>All Registered Users</option>
+              <option value="students">Students Only</option>
+              <option value="contributors">Contributors Only</option>
+              <option value="reviewers">Reviewers Only</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ann-content">Notice Content</label>
+          <div class="input-wrap">
+            <textarea id="ann-content" rows="4" style="width:100%; background:transparent; border:none; color:#fff; font-size:0.85rem; padding:8px; resize:vertical; outline:none;" placeholder="Write detailed notice here..." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding:0; margin-top:16px;">
+          <button type="submit" class="action-btn grad-purple" style="padding:8px 18px;">Publish Announcement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       CONTRIBUTOR RESUBMIT MODAL
+       ===================================================== -->
+  <div class="modal-backdrop" id="contributor-resubmit-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Resubmit Corrected Paper</h3>
+        <button type="button" class="modal-close-btn" onclick="closeContributorResubmitModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <input type="hidden" id="crm-submission-id" value="" />
+        <div class="form-group">
+          <label for="crm-notes">Corrections Addressed / Resubmission Notes</label>
+          <div class="input-wrap">
+            <textarea id="crm-notes" rows="3" style="width:100%; background:transparent; border:none; color:#fff; font-size:0.85rem; padding:8px; resize:vertical; outline:none;" placeholder="Detail what changes were made in response to the reviewer's feedback..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="action-btn grad-cyan" style="padding:8px 18px;" onclick="submitPaperResubmission()">Submit Revision</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast Notification -->
   <div class="toast" id="toast"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2.6"></script>
 </body>
 </html>

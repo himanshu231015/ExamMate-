@@ -44,6 +44,7 @@ class PYQSearchEngine:
             .outerjoin(SyllabusTopic, ExtractedQuestion.topic_id == SyllabusTopic.id)
             .filter(
                 QuestionPaper.verification_status == VerificationStatus.VERIFIED,
+                QuestionPaper.is_published == True,
                 ExtractedQuestion.is_human_verified == True,
             )
         )

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # RGPV ExamMate — AI-Powered University Exam Preparation Platform
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111.0-009688.svg?style=flat&logo=FastAPI&logoColor=white)](https://fastapi.tiangolo.com)
@@ -216,6 +215,3 @@ RGPV/
 | **Phase 7: Feedback & Improvement** | Error reports, ratings, admin metrics, audit logging | ✅ **Done (Backend)** |
 | **Phase 8: Historical Analytics & Planner**| Topic frequency dashboard, chronological backtesting, personalized study planner | ✅ **Done (Backend)** |
 | **Phase 9: Testing & Deployment** | Automated pytest suite (17 passed), Dockerization, final documentation | 🟡 **In Progress** |
-=======
->>>>>>> 390f49ccf3be47e1223a848f94ab9f8422765981
-# ExamMate-

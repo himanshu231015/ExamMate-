@@ -2,7 +2,7 @@
 
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.models.question_paper import ExamType, ExamSession
@@ -10,9 +10,11 @@ from app.models.question_paper import ExamType, ExamSession
 
 class SubmissionStatus(str, enum.Enum):
     PENDING = "pending"
+    IN_REVIEW = "in_review"
     APPROVED = "approved"
     REJECTED = "rejected"
     RETURNED_FOR_CORRECTION = "returned_for_correction"
+    FLAGGED = "flagged"
 
 
 class PaperSubmission(Base):
@@ -20,6 +22,7 @@ class PaperSubmission(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    assigned_reviewer_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
     subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False, index=True)
     scheme_id = Column(Integer, ForeignKey("academic_schemes.id", ondelete="CASCADE"), nullable=False, index=True)
     exam_year = Column(Integer, nullable=False)
@@ -29,6 +32,9 @@ class PaperSubmission(Base):
     checksum = Column(String(64), nullable=False, index=True)
     status = Column(Enum(SubmissionStatus), default=SubmissionStatus.PENDING, nullable=False, index=True)
     reviewer_notes = Column(Text, nullable=True)
+    is_flagged = Column(Boolean, default=False, nullable=False)
+    flag_reason = Column(Text, nullable=True)
+    dispute_reason = Column(Text, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
         DateTime,
@@ -39,6 +45,7 @@ class PaperSubmission(Base):
 
     # Relationships
     submitter = relationship("User", foreign_keys=[user_id], back_populates="submissions")
+    assigned_reviewer = relationship("User", foreign_keys=[assigned_reviewer_id])
     subject = relationship("Subject")
     scheme = relationship("AcademicScheme")
     reviews = relationship("PaperReview", back_populates="submission", cascade="all, delete-orphan")

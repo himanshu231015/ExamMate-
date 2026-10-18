@@ -76,6 +76,13 @@ def reviewer_headers():
 
 
 @pytest.fixture
+def contributor_headers():
+    """Authorization headers for a contributor user (ID: 3 in seed)."""
+    token = create_access_token(data={"sub": "3", "role": "contributor"})
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
 def admin_headers():
     """Authorization headers for an administrator user (ID: 1 in seed)."""
     token = create_access_token(data={"sub": "1", "role": "admin"})

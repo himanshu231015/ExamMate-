@@ -68,6 +68,7 @@ def get_question_detail(question_id: int, db: Session = Depends(get_db)):
         .filter(
             ExtractedQuestion.id == question_id,
             QuestionPaper.verification_status == VerificationStatus.VERIFIED,
+            QuestionPaper.is_published == True,
             ExtractedQuestion.is_human_verified == True,
         )
         .first()
@@ -88,6 +89,7 @@ def get_question_paper(paper_id: int, db: Session = Depends(get_db)):
         .filter(
             QuestionPaper.id == paper_id,
             QuestionPaper.verification_status == VerificationStatus.VERIFIED,
+            QuestionPaper.is_published == True,
         )
         .first()
     )

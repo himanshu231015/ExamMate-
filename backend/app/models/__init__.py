@@ -45,10 +45,12 @@ from app.models.study_plan import (
     PlanStatus,
 )
 from app.models.audit import AuditLog
+from app.models.announcement import Announcement
 
 __all__ = [
     "Base",
     "User",
+    "Announcement",
     "UserRole",
     "University",
     "Degree",

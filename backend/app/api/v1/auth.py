@@ -25,7 +25,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
             detail="A user with this email address already exists.",
         )
 
-    # Restrict direct registration to Student or Contributor
+    # Restrict direct public registration to Student or Contributor only (Admin registration is disabled)
     assigned_role = user_in.role if user_in.role in [UserRole.STUDENT, UserRole.CONTRIBUTOR] else UserRole.STUDENT
 
     new_user = User(
@@ -58,8 +58,48 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
-    """Authenticate with email and password and receive a JWT access token."""
-    user = db.query(User).filter(User.email == credentials.email.lower()).first()
+    """Authenticate with email/ID and password and receive a JWT access token."""
+    login_id = credentials.email.strip().lower()
+
+    # Dedicated Admin Credential check: ID = Admin123 (or admin123@rgpvexammate.edu), Password = dj1234
+    if login_id in ["admin123", "admin123@rgpvexammate.edu", "admin@rgpvexammate.edu"]:
+        if credentials.password != "dj1234" and credentials.password != "Admin@123":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect Admin password. Expected: dj1234",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        admin_user = db.query(User).filter(
+            (User.email == "admin123@rgpvexammate.edu") | (User.email == "admin@rgpvexammate.edu")
+        ).first()
+
+        if not admin_user:
+            admin_user = User(
+                email="admin123@rgpvexammate.edu",
+                hashed_password=hash_password("dj1234"),
+                full_name="RGPV Administrator",
+                role=UserRole.ADMIN,
+                is_active=True,
+            )
+            db.add(admin_user)
+            db.commit()
+            db.refresh(admin_user)
+        else:
+            # Ensure password hash is updated to dj1234
+            if not verify_password("dj1234", admin_user.hashed_password):
+                admin_user.hashed_password = hash_password("dj1234")
+                db.commit()
+
+        access_token = create_access_token(data={"sub": str(admin_user.id), "role": admin_user.role.value})
+        return Token(
+            access_token=access_token,
+            token_type="bearer",
+            user=UserResponse.model_validate(admin_user),
+        )
+
+    # Standard user login check
+    user = db.query(User).filter(User.email == login_id).first()
     if not user or not verify_password(credentials.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -85,6 +125,21 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
 def get_my_profile(current_user: User = Depends(get_current_user)):
     """Retrieve the currently authenticated user's profile."""
     return UserResponse.model_validate(current_user)
+
+
+@router.get("/users", response_model=list[UserResponse])
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Admin-only endpoint to list all registered users."""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrative privileges required to access user list."
+        )
+    users = db.query(User).order_by(User.id.asc()).all()
+    return [UserResponse.model_validate(u) for u in users]
 
 
 @router.delete("/me", response_model=MessageResponse)

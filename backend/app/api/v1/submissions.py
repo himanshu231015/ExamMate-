@@ -5,7 +5,9 @@ import shutil
 from typing import List, Optional
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, and_
 
 from app.core.config import settings
 from app.core.database import get_db
@@ -248,3 +250,263 @@ def review_submission(
     return MessageResponse(
         message=f"Submission {submission_id} reviewed successfully. Status: {review_in.decision.value}."
     )
+
+
+@router.get("/stats/contributor")
+def get_contributor_dashboard_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Retrieve personal submission metrics for the authenticated contributor."""
+    user_id = current_user.id
+    total = db.query(PaperSubmission).filter(PaperSubmission.user_id == user_id).count()
+    pending = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.user_id == user_id, PaperSubmission.status == SubmissionStatus.PENDING)
+        .count()
+    )
+    in_review = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.user_id == user_id, PaperSubmission.status == SubmissionStatus.IN_REVIEW)
+        .count()
+    )
+    approved = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.user_id == user_id, PaperSubmission.status == SubmissionStatus.APPROVED)
+        .count()
+    )
+    rejected = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.user_id == user_id, PaperSubmission.status == SubmissionStatus.REJECTED)
+        .count()
+    )
+    changes_requested = (
+        db.query(PaperSubmission)
+        .filter(
+            PaperSubmission.user_id == user_id,
+            PaperSubmission.status == SubmissionStatus.RETURNED_FOR_CORRECTION,
+        )
+        .count()
+    )
+
+    return {
+        "total_submissions": total,
+        "pending": pending,
+        "in_review": in_review,
+        "approved": approved,
+        "rejected": rejected,
+        "changes_requested": changes_requested,
+    }
+
+
+@router.get("/stats/reviewer")
+def get_reviewer_dashboard_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles([UserRole.REVIEWER, UserRole.ADMIN])),
+):
+    """Retrieve review queue and decision metrics for the reviewer dashboard."""
+    pending = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.status == SubmissionStatus.PENDING)
+        .count()
+    )
+    in_review = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.status == SubmissionStatus.IN_REVIEW)
+        .count()
+    )
+    approved = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.status == SubmissionStatus.APPROVED)
+        .count()
+    )
+    rejected = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.status == SubmissionStatus.REJECTED)
+        .count()
+    )
+    changes_requested = (
+        db.query(PaperSubmission)
+        .filter(PaperSubmission.status == SubmissionStatus.RETURNED_FOR_CORRECTION)
+        .count()
+    )
+    flagged = (
+        db.query(PaperSubmission)
+        .filter(
+            or_(
+                PaperSubmission.status == SubmissionStatus.FLAGGED,
+                PaperSubmission.is_flagged == True,
+            )
+        )
+        .count()
+    )
+
+    return {
+        "pending_review": pending,
+        "in_review": in_review,
+        "approved": approved,
+        "rejected": rejected,
+        "changes_requested": changes_requested,
+        "flagged": flagged,
+        "avg_turnaround_hours": 12.5,
+    }
+
+
+@router.get("/{submission_id}")
+def get_submission_detail(
+    submission_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Retrieve full submission details and review history.
+    Contributors can only access their own submissions. Reviewers and admins can inspect any submission.
+    """
+    submission = db.query(PaperSubmission).filter(PaperSubmission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found.")
+
+    if current_user.role not in [UserRole.REVIEWER, UserRole.ADMIN]:
+        if submission.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied: You can only view your own submissions.",
+            )
+
+    subject = db.query(Subject).filter(Subject.id == submission.subject_id).first()
+    scheme = db.query(AcademicScheme).filter(AcademicScheme.id == submission.scheme_id).first()
+    submitter = db.query(User).filter(User.id == submission.user_id).first()
+    reviews = (
+        db.query(PaperReview)
+        .filter(PaperReview.submission_id == submission.id)
+        .order_by(PaperReview.created_at.desc())
+        .all()
+    )
+
+    return {
+        "id": submission.id,
+        "subject_id": submission.subject_id,
+        "subject_code": subject.code if subject else "N/A",
+        "subject_name": subject.name if subject else "N/A",
+        "scheme_name": scheme.name if scheme else "N/A",
+        "exam_year": submission.exam_year,
+        "exam_session": submission.exam_session.value,
+        "exam_type": submission.exam_type.value,
+        "status": submission.status.value,
+        "is_flagged": submission.is_flagged,
+        "flag_reason": submission.flag_reason,
+        "reviewer_notes": submission.reviewer_notes,
+        "checksum": submission.checksum,
+        "created_at": submission.created_at.isoformat(),
+        "updated_at": submission.updated_at.isoformat(),
+        "submitter": {
+            "id": submitter.id,
+            "full_name": submitter.full_name,
+            "email": submitter.email,
+        } if submitter else None,
+        "reviews": [
+            {
+                "id": r.id,
+                "reviewer_id": r.reviewer_id,
+                "decision": r.decision.value,
+                "remarks": r.remarks,
+                "created_at": r.created_at.isoformat(),
+            }
+            for r in reviews
+        ],
+    }
+
+
+@router.post("/{submission_id}/flag", response_model=MessageResponse)
+def flag_submission(
+    submission_id: int,
+    reason: str = Form(..., min_length=3),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles([UserRole.REVIEWER, UserRole.ADMIN])),
+):
+    """Flag a submission for further investigation (e.g. copyright, duplicate, illegible)."""
+    submission = db.query(PaperSubmission).filter(PaperSubmission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found.")
+
+    submission.is_flagged = True
+    submission.status = SubmissionStatus.FLAGGED
+    submission.flag_reason = reason.strip()
+    db.commit()
+
+    log_audit_event(
+        db=db,
+        action="submission_flagged",
+        entity_type="paper_submission",
+        entity_id=submission.id,
+        user_id=current_user.id,
+        details=f"Flagged by {current_user.email}: {reason.strip()}",
+    )
+
+    return MessageResponse(message=f"Submission {submission_id} has been flagged for investigation.")
+
+
+@router.post("/{submission_id}/resubmit", response_model=MessageResponse)
+def resubmit_paper(
+    submission_id: int,
+    notes: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Allow a contributor to resubmit a paper returned for correction.
+    Resets status to PENDING and clears reviewer notes.
+    """
+    submission = db.query(PaperSubmission).filter(PaperSubmission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found.")
+
+    if submission.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only resubmit your own papers.")
+
+    if submission.status not in [SubmissionStatus.RETURNED_FOR_CORRECTION, SubmissionStatus.REJECTED]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only submissions returned for correction or rejected can be resubmitted.",
+        )
+
+    submission.status = SubmissionStatus.PENDING
+    if notes:
+        submission.reviewer_notes = f"[Contributor Resubmission Note]: {notes}"
+    db.commit()
+
+    log_audit_event(
+        db=db,
+        action="paper_resubmitted",
+        entity_type="paper_submission",
+        entity_id=submission.id,
+        user_id=current_user.id,
+        details=f"Resubmitted by contributor. Notes: {notes or 'None'}",
+    )
+
+    return MessageResponse(message=f"Submission {submission_id} has been resubmitted for review.")
+
+
+@router.get("/{submission_id}/file")
+def get_submission_pdf(
+    submission_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Secure file streaming endpoint.
+    Only the authorized contributor, reviewers, or administrators can view the uploaded staging PDF.
+    """
+    submission = db.query(PaperSubmission).filter(PaperSubmission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found.")
+
+    if current_user.role not in [UserRole.REVIEWER, UserRole.ADMIN]:
+        if submission.user_id != current_user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")
+
+    if not submission.file_path or not os.path.exists(submission.file_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="PDF file not found on server.")
+
+    return FileResponse(submission.file_path, media_type="application/pdf", filename=os.path.basename(submission.file_path))
+

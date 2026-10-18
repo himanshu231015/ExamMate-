@@ -34,6 +34,7 @@ class QuestionPaper(Base):
     source_url = Column(String(500), nullable=True)
     checksum = Column(String(64), nullable=True, unique=True, index=True)
     verification_status = Column(Enum(VerificationStatus), default=VerificationStatus.VERIFIED, nullable=False, index=True)
+    is_published = Column(Boolean, default=True, nullable=False, index=True)
     total_marks = Column(Integer, default=70, nullable=False)
     uploaded_by_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     approved_by_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
